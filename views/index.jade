@@ -1,0 +1,16 @@
+extends layout
+
+block script
+   script(src='/javascripts/script.js')
+
+block content
+   h1 #{title}
+   canvas#canvas
+   #chat
+      .well
+         ul.list-group(id='chat-window')
+      form.form-group(action='' id='chat-form')
+         .input-group
+            input.form-control(type='text' id='chat-input')
+            span.input-group-btn
+               button.btn.btn-default(id='chat-send') Send
