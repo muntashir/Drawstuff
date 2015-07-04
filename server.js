@@ -9,13 +9,13 @@ var io = require('socket.io')(server);
 
 //Init socket
 io.on('connection', function (socket) {
-   socket.emit('draw', canvas);
+   socket.emit('draw-canvas', canvas);
    socket.on('chat message', function (msg) {
       socket.broadcast.emit('chat message', msg);
    });
-   socket.on('draw', function (c) {
+   socket.on('draw-line', function (line, c) {
       canvas = c;
-      socket.broadcast.emit('draw', c);
+      socket.broadcast.emit('draw-line', line, canvas);
    });
 });
 

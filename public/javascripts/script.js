@@ -33,13 +33,20 @@ $(document).ready(function () {
 
    initCanvas();
 
-   socket.on('draw', function (c) {
+   socket.on('draw-canvas', function (c) {
       var image = new Image();
       image.onload = function () {
          ctx.clearRect(0, 0, canvas.width, canvas.height);
          ctx.drawImage(image, 0, 0);
       };
       image.src = c;
+   });
+
+   socket.on('draw-line', function (line, c) {
+      ctx.beginPath();
+      ctx.moveTo(line.oldX, line.oldY);
+      ctx.lineTo(line.newX, line.newY);
+      ctx.stroke();
    });
 });
 
@@ -72,12 +79,19 @@ function initCanvas() {
    $(window).on('mousemove touchmove', function (e) {
       e.preventDefault();
       if (mouseDown) {
-         ctx.beginPath();
-         ctx.moveTo(mousePos.x, mousePos.y);
+         var line = {};
+         line.oldX = mousePos.x;
+         line.oldY = mousePos.y;
          mousePos = getMousePos(canvas, e.originalEvent);
-         ctx.lineTo(mousePos.x, mousePos.y);
+         line.newX = mousePos.x;
+         line.newY = mousePos.y;
+
+         ctx.beginPath();
+         ctx.moveTo(line.oldX, line.oldY);
+         ctx.lineTo(line.newX, line.newY);
          ctx.stroke();
-         socket.emit('draw', canvas.toDataURL());
+
+         socket.emit('draw-line', line, canvas.toDataURL());
       }
    });
 }
