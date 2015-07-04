@@ -102,9 +102,17 @@ function initCanvas() {
 
 function getMousePos(canvas, e) {
    var rect = canvas.getBoundingClientRect();
-   return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+   if (e.clientX) {
+      return {
+         x: e.clientX - rect.left,
+         y: e.clientY - rect.top
+      };
+   };
+   if (e.changedTouches[0]) {
+      return {
+         x: e.changedTouches[0].pageX - rect.left,
+         y: e.changedTouches[0].pageY - rect.top
+      };
    };
 }
 
