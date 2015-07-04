@@ -3,6 +3,7 @@ var socket;
 var mousePos;
 var mouseDown = false;
 var username;
+var canvas;
 
 $(document).ready(function () {
    socket = io();
@@ -35,6 +36,7 @@ $(document).ready(function () {
    socket.on('draw', function (c) {
       var image = new Image();
       image.onload = function () {
+         ctx.clearRect(0, 0, canvas.width, canvas.height);
          ctx.drawImage(image, 0, 0);
       };
       image.src = c;
@@ -42,7 +44,7 @@ $(document).ready(function () {
 });
 
 function initCanvas() {
-   var canvas = document.getElementById("canvas");
+   canvas = document.getElementById("canvas");
    canvas.height = 500;
    canvas.width = 850;
    ctx = canvas.getContext("2d");

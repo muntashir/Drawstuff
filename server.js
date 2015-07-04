@@ -1,4 +1,5 @@
 var app = require('./app');
+var canvas;
 
 //Init HTTP server
 var port = "80";
@@ -8,10 +9,12 @@ var io = require('socket.io')(server);
 
 //Init socket
 io.on('connection', function (socket) {
+   socket.emit('draw', canvas);
    socket.on('chat message', function (msg) {
       socket.broadcast.emit('chat message', msg);
    });
    socket.on('draw', function (c) {
+      canvas = c;
       socket.broadcast.emit('draw', c);
    });
 });
