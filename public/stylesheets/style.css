@@ -23,3 +23,9 @@ h1 {
   border-color: #2c3e50;
   margin: 0.65em;
 }
+#draw {
+  float: left;
+}
+#tools {
+  margin: 0.65em;
+}

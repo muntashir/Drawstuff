@@ -50,6 +50,10 @@ function initCanvas() {
    ctx = canvas.getContext("2d");
    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+   $('#clear').on('click', function () {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+   });
+
    $('#canvas').on('mousedown touchstart', function (e) {
       e.preventDefault();
       if (!mouseDown) {

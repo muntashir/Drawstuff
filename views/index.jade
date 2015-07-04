@@ -5,7 +5,10 @@ block script
 
 block content
    h1 #{title}
-   canvas#canvas
+   #draw
+      canvas#canvas
+      #tools
+         button.btn.btn-primary(id='clear') Clear
    #chat
       .well(id='chat-window')
          ul.list-group(id='chat-messages')
@@ -13,4 +16,4 @@ block content
          .input-group
             input.form-control(type='text' id='chat-input')
             span.input-group-btn
-               button.btn.btn-default(id='chat-send') Send
+               button.btn.btn-primary(id='chat-send') Send
