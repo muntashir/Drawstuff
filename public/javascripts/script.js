@@ -10,20 +10,24 @@ $(document).ready(function () {
    getUserName();
 
    $(window).on('beforeunload', function () {
+      socket.emit('chat message', username + " has left");
       socket.close();
    });
 
    $('form').submit(function () {
       if ($('#chat-input').val()) {
          socket.emit('chat message', username + ": " + $('#chat-input').val());
+         $('#chat-messages').append($('<li>').text("You: " + $('#chat-input').val()).addClass('list-group-item active'));
          $('#chat-input').val('');
       }
       return false;
    });
 
    socket.on('chat message', function (msg) {
-      $('#chat-window').append($('<li>').text(msg).addClass('list-group-item'));
-      $('#chat-window').scrollTop($('#chat-window').scrollHeight);
+      $('#chat-messages').append($('<li>').text(msg).addClass('list-group-item'));
+      $("#chat-window").animate({
+         scrollTop: $("#chat-window").scrollHeight
+      }, 1000);
    });
 
    initCanvas();
@@ -85,11 +89,12 @@ function getUserName() {
       title: "Enter a username",
       value: "",
       callback: function (result) {
-         if (result === null) {
+         if (result === null || result === "") {
             getUserName();
          } else {
             username = result;
             socket.emit('chat message', username + " has joined");
+            $('#chat-messages').append($('<li>').text(username + " has joined").addClass('list-group-item active'));
          }
       }
    });
