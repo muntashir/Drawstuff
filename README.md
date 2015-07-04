@@ -1,3 +1,3 @@
 # Drawstuff
 
-Run npm start
+https://draw-stuff.herokuapp.com/
