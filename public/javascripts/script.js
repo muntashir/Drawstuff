@@ -42,7 +42,7 @@ $(document).ready(function () {
       image.src = c;
    });
 
-   socket.on('draw-line', function (line, c) {
+   socket.on('draw-line', function (line) {
       ctx.beginPath();
       ctx.moveTo(line.oldX, line.oldY);
       ctx.lineTo(line.newX, line.newY);
@@ -59,6 +59,8 @@ function initCanvas() {
 
    $('#clear').on('click', function () {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      socket.emit('update-canvas', canvas.toDataURL());
+      socket.emit('reload-canvas');
    });
 
    $('#canvas').on('mousedown touchstart', function (e) {
@@ -91,7 +93,8 @@ function initCanvas() {
          ctx.lineTo(line.newX, line.newY);
          ctx.stroke();
 
-         socket.emit('draw-line', line, canvas.toDataURL());
+         socket.emit('draw-line', line);
+         socket.emit('update-canvas', canvas.toDataURL());
       }
    });
 }
