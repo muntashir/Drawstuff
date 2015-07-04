@@ -11,7 +11,8 @@ $(document).ready(function () {
    getUserName();
 
    $(window).on('beforeunload', function () {
-      socket.emit('chat message', username + " has left");
+      if (username)
+         socket.emit('chat message', username + " has left");
       socket.close();
    });
 
