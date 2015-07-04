@@ -12,7 +12,7 @@ io.on('connection', function (socket) {
       io.emit('chat message', msg);
    });
    socket.on('draw', function (c) {
-      io.emit('draw', c);
+      socket.broadcast.emit('draw', c);
    });
 });
 

@@ -2,9 +2,12 @@ var ctx;
 var socket;
 var mousePos;
 var mouseDown = false;
+var username;
 
 $(document).ready(function () {
    socket = io();
+
+   getUserName();
 
    $(window).on('beforeunload', function () {
       socket.close();
@@ -12,7 +15,7 @@ $(document).ready(function () {
 
    $('form').submit(function () {
       if ($('#chat-input').val()) {
-         socket.emit('chat message', $('#chat-input').val());
+         socket.emit('chat message', username + ": " + $('#chat-input').val());
          $('#chat-input').val('');
       }
       return false;
@@ -41,24 +44,27 @@ function initCanvas() {
    ctx = canvas.getContext("2d");
    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-   $('#canvas').on('mousedown', function (e) {
+   $('#canvas').on('mousedown touchstart', function (e) {
+      e.preventDefault();
       if (!mouseDown) {
          mouseDown = true;
-         mousePos = getMousePos(canvas, e);
+         mousePos = getMousePos(canvas, e.originalEvent);
       }
    });
 
-   $(window).on('mouseup', function (e) {
+   $(window).on('mouseup touchend', function (e) {
+      e.preventDefault();
       if (mouseDown) {
          mouseDown = false;
       }
    });
 
-   $(window).on('mousemove', function (e) {
+   $(window).on('mousemove touchmove', function (e) {
+      e.preventDefault();
       if (mouseDown) {
          ctx.beginPath();
          ctx.moveTo(mousePos.x, mousePos.y);
-         mousePos = getMousePos(canvas, e);
+         mousePos = getMousePos(canvas, e.originalEvent);
          ctx.lineTo(mousePos.x, mousePos.y);
          ctx.stroke();
          socket.emit('draw', canvas.toDataURL());
@@ -72,4 +78,19 @@ function getMousePos(canvas, e) {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
    };
+}
+
+function getUserName() {
+   bootbox.prompt({
+      title: "Enter a username",
+      value: "",
+      callback: function (result) {
+         if (result === null) {
+            getUserName();
+         } else {
+            username = result;
+            socket.emit('chat message', username + " has joined");
+         }
+      }
+   });
 }
