@@ -1,5 +1,5 @@
 var app = require('./app');
-var canvas;
+var lines = [];
 
 //Init HTTP server
 var port = process.env.PORT || 80;
@@ -9,22 +9,23 @@ var io = require('socket.io')(server);
 
 //Init socket
 io.on('connection', function (socket) {
-    socket.emit('draw-canvas', canvas);
+    socket.emit('get-lines', lines);
 
-    socket.on('reload-canvas', function () {
-        socket.broadcast.emit('draw-canvas', canvas);
+    socket.on('request-lines', function () {
+        io.emit('get-lines', lines);
     });
 
-    socket.on('chat message', function (msg) {
-        socket.broadcast.emit('chat message', msg);
+    socket.on('add-line', function (line) {
+        lines.push(line);
     });
 
-    socket.on('draw-line', function (line) {
-        socket.broadcast.emit('draw-line', line, canvas);
+    socket.on('clear', function (line) {
+        lines = [];
+        io.emit('get-lines', lines);
     });
 
-    socket.on('update-canvas', function (c) {
-        canvas = c;
+    socket.on('chat-message', function (msg) {
+        socket.broadcast.emit('chat-message', msg);
     });
 });
 

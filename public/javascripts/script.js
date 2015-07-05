@@ -13,20 +13,20 @@ $(document).ready(function () {
 
     $(window).on('beforeunload', function () {
         if (username)
-            socket.emit('chat message', username + " has left");
+            socket.emit('chat-message', username + " has left");
         socket.close();
     });
 
     $('form').submit(function () {
         if ($('#chat-input').val()) {
-            socket.emit('chat message', username + ": " + $('#chat-input').val());
+            socket.emit('chat-message', username + ": " + $('#chat-input').val());
             $('#chat-messages').append($('<li>').text("You: " + $('#chat-input').val()).addClass('list-group-item active'));
             $('#chat-input').val('');
         }
         return false;
     });
 
-    socket.on('chat message', function (msg) {
+    socket.on('chat-message', function (msg) {
         $('#chat-messages').append($('<li>').text(msg).addClass('list-group-item'));
         $("#chat-window").animate({
             scrollTop: $("#chat-window")[0].scrollHeight
@@ -35,23 +35,18 @@ $(document).ready(function () {
 
     initCanvas();
 
-    socket.on('draw-canvas', function (c) {
-        var image = new Image();
-        image.onload = function () {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(image, 0, 0);
-        };
-        image.src = c;
+    socket.on('get-lines', function (lines) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < lines.length; i++) {
+            ctx.strokeStyle = lines[i].color;
+            ctx.beginPath();
+            ctx.moveTo(lines[i].oldX, lines[i].oldY);
+            ctx.lineTo(lines[i].newX, lines[i].newY);
+            ctx.stroke();
+        }
     });
 
-    socket.on('draw-line', function (line) {
-        ctx.strokeStyle = line.color;
-        ctx.beginPath();
-        ctx.moveTo(line.oldX, line.oldY);
-        ctx.lineTo(line.newX, line.newY);
-        ctx.stroke();
-        ctx.strokeStyle = canvasColor;
-    });
+    window.requestAnimationFrame(requestUpdate);
 });
 
 function initCanvas() {
@@ -62,9 +57,7 @@ function initCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     $('#clear').on('click', function () {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        socket.emit('update-canvas', canvas.toDataURL());
-        socket.emit('reload-canvas');
+        socket.emit('clear');
     });
 
     $('#canvas').on('mousedown touchstart', function (e) {
@@ -93,13 +86,7 @@ function initCanvas() {
             line.newY = mousePos.y;
             line.color = canvasColor;
 
-            ctx.beginPath();
-            ctx.moveTo(line.oldX, line.oldY);
-            ctx.lineTo(line.newX, line.newY);
-            ctx.stroke();
-
-            socket.emit('draw-line', line);
-            socket.emit('update-canvas', canvas.toDataURL());
+            socket.emit('add-line', line);
         }
     });
 
@@ -142,9 +129,14 @@ function getUserName() {
                 getUserName();
             } else {
                 username = result;
-                socket.emit('chat message', username + " has joined");
+                socket.emit('chat-message', username + " has joined");
                 $('#chat-messages').append($('<li>').text(username + " has joined").addClass('list-group-item active'));
             }
         }
     });
+}
+
+function requestUpdate() {
+    socket.emit('request-lines');
+    window.requestAnimationFrame(requestUpdate);
 }
