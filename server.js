@@ -13,7 +13,7 @@ io.on('connection', function (socket) {
     socket.emit('get-lines', lines);
 
     socket.on('request-lines', function () {
-        io.emit('get-lines', lines);
+        socket.emit('get-lines', lines);
     });
 
     socket.on('add-line', function (line) {
