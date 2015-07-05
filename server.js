@@ -1,5 +1,6 @@
 var app = require('./app');
 var lines = [];
+var users;
 
 //Init HTTP server
 var port = process.env.PORT || 80;
@@ -17,6 +18,14 @@ io.on('connection', function (socket) {
 
     socket.on('add-line', function (line) {
         lines.push(line);
+    });
+
+    socket.on('new-user', function (username) {
+        users++;
+    });
+
+    socket.on('user-leave', function (username) {
+        users--;
     });
 
     socket.on('clear', function (line) {

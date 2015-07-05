@@ -12,8 +12,10 @@ $(document).ready(function () {
     getUserName();
 
     $(window).on('beforeunload', function () {
-        if (username)
+        if (username) {
             socket.emit('chat-message', username + " has left");
+            socket.emit('user-leave', username);
+        }
         socket.close();
     });
 
@@ -111,8 +113,8 @@ function getMousePos(canvas, e) {
             x: e.clientX - rect.left,
             y: e.clientY - rect.top
         };
-    };
-    if (e.changedTouches[0]) {
+    }
+    if (e.changedTouches) {
         return {
             x: e.changedTouches[0].pageX - rect.left,
             y: e.changedTouches[0].pageY - rect.top
@@ -131,6 +133,7 @@ function getUserName() {
                 username = result;
                 socket.emit('chat-message', username + " has joined");
                 $('#chat-messages').append($('<li>').text(username + " has joined").addClass('list-group-item active'));
+                socket.emit('new-user', username);
             }
         }
     });
