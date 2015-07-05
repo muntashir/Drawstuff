@@ -29,7 +29,7 @@ $(document).ready(function () {
     socket.on('chat message', function (msg) {
         $('#chat-messages').append($('<li>').text(msg).addClass('list-group-item'));
         $("#chat-window").animate({
-            scrollTop: $("#chat-window").scrollHeight
+            scrollTop: $("#chat-window")[0].scrollHeight
         }, 1000);
     });
 
@@ -52,6 +52,11 @@ $(document).ready(function () {
         ctx.stroke();
         ctx.strokeStyle = canvasColor;
     });
+
+    setInterval(function () {
+        socket.emit('update-canvas', canvas.toDataURL());
+        socket.emit('reload-canvas');
+    }, 1000);
 });
 
 function initCanvas() {
