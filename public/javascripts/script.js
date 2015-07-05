@@ -52,11 +52,6 @@ $(document).ready(function () {
         ctx.stroke();
         ctx.strokeStyle = canvasColor;
     });
-
-    setInterval(function () {
-        socket.emit('update-canvas', canvas.toDataURL());
-        socket.emit('reload-canvas');
-    }, 15);
 });
 
 function initCanvas() {
