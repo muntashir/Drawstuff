@@ -22,12 +22,12 @@ app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-   extended: false
+    extended: false
 }));
 app.use(cookieParser());
 app.use(stylus.middleware({
-   src: __dirname + '/views',
-   dest: __dirname + '/public'
+    src: __dirname + '/views',
+    dest: __dirname + '/public'
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -36,18 +36,18 @@ app.use('/', routes);
 
 //404 if no routes have handled request
 app.use(function (req, res, next) {
-   var err = new Error('Not Found');
-   err.status = 404;
-   next(err);
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 //Display error
 app.use(function (err, req, res, next) {
-   res.status(err.status || 500);
-   res.render('error', {
-      message: err.message,
-      error: err
-   });
+    res.status(err.status || 500);
+    res.render('error', {
+        message: err.message,
+        error: err
+    });
 });
 
 module.exports = app;

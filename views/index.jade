@@ -1,19 +1,20 @@
 extends layout
 
 block script
-   script(src='/javascripts/script.js')
+    script(src='/javascripts/script.js')
 
 block content
-   h1 #{title}
-   #draw
-      canvas#canvas
-      #tools
-         button.btn.btn-primary(id='clear') Clear
-   #chat
-      .well(id='chat-window')
-         ul.list-group(id='chat-messages')
-      form.form-group(action='' id='chat-form')
-         .input-group
-            input.form-control(type='text' id='chat-input')
-            span.input-group-btn
-               button.btn.btn-primary(id='chat-send') Send
+    h1 #{title}
+    #draw
+        canvas#canvas
+        #tools
+            button.btn.btn-primary(id='clear') Clear
+            input#color-picker
+    #chat
+        .well(id='chat-window')
+            ul.list-group(id='chat-messages')
+        form.form-group(action='' id='chat-form')
+            .input-group
+                input.form-control(type='text' id='chat-input')
+                span.input-group-btn
+                    button.btn.btn-primary(id='chat-send') Send

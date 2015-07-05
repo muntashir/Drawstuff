@@ -9,23 +9,23 @@ var io = require('socket.io')(server);
 
 //Init socket
 io.on('connection', function (socket) {
-   socket.emit('draw-canvas', canvas);
+    socket.emit('draw-canvas', canvas);
 
-   socket.on('reload-canvas', function () {
-      socket.broadcast.emit('draw-canvas', canvas);
-   });
+    socket.on('reload-canvas', function () {
+        socket.broadcast.emit('draw-canvas', canvas);
+    });
 
-   socket.on('chat message', function (msg) {
-      socket.broadcast.emit('chat message', msg);
-   });
+    socket.on('chat message', function (msg) {
+        socket.broadcast.emit('chat message', msg);
+    });
 
-   socket.on('draw-line', function (line) {
-      socket.broadcast.emit('draw-line', line, canvas);
-   });
+    socket.on('draw-line', function (line) {
+        socket.broadcast.emit('draw-line', line, canvas);
+    });
 
-   socket.on('update-canvas', function (c) {
-      canvas = c;
-   });
+    socket.on('update-canvas', function (c) {
+        canvas = c;
+    });
 });
 
 //Start server
@@ -35,29 +35,29 @@ server.listen(port);
 
 //Server functions
 function onError(error) {
-   if (error.syscall !== 'listen') {
-      throw error;
-   }
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-   var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+    var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
-   // handle specific listen errors with friendly messages
-   switch (error.code) {
-   case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-   case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-   default:
-      throw error;
-   }
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+    case 'EACCES':
+        console.error(bind + ' requires elevated privileges');
+        process.exit(1);
+        break;
+    case 'EADDRINUSE':
+        console.error(bind + ' is already in use');
+        process.exit(1);
+        break;
+    default:
+        throw error;
+    }
 }
 
 function onListening() {
-   var addr = server.address();
-   var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-   console.log('Listening on ' + bind);
+    var addr = server.address();
+    var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+    console.log('Listening on ' + bind);
 }
