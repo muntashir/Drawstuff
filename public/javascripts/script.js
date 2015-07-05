@@ -56,7 +56,7 @@ $(document).ready(function () {
     setInterval(function () {
         socket.emit('update-canvas', canvas.toDataURL());
         socket.emit('reload-canvas');
-    }, 1000);
+    }, 15);
 });
 
 function initCanvas() {
