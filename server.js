@@ -1,5 +1,5 @@
 var app = require('./app');
-var lines = [];
+var canvasData = [];
 var users;
 
 //Init HTTP server
@@ -10,14 +10,19 @@ var io = require('socket.io')(server);
 
 //Init socket
 io.on('connection', function (socket) {
-    socket.emit('get-lines', lines);
+    socket.emit('transmit-canvasData', canvasData);
 
-    socket.on('request-lines', function () {
-        socket.emit('get-lines', lines);
+    socket.on('request-canvasData', function () {
+        socket.emit('transmit-canvasData', canvasData);
     });
 
-    socket.on('add-line', function (line) {
-        lines.push(line);
+    socket.on('add-canvasData', function (data) {
+        Array.prototype.push.apply(canvasData, data);
+    });
+
+    socket.on('clear', function () {
+        canvasData = [];
+        io.emit('transmit-canvasData', canvasData);
     });
 
     socket.on('new-user', function (username) {
@@ -26,11 +31,6 @@ io.on('connection', function (socket) {
 
     socket.on('user-leave', function (username) {
         users--;
-    });
-
-    socket.on('clear', function (line) {
-        lines = [];
-        io.emit('get-lines', lines);
     });
 
     socket.on('chat-message', function (msg) {

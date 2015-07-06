@@ -5,10 +5,26 @@ var mouseDown = false;
 var username;
 var canvas;
 var canvasColor = '#000';
+var dataBuffer = [];
+var bufferLength = 5;
 
 $(document).ready(function () {
     socket = io();
+    initChat();
+    initCanvas();
 
+    $('#clear').on('click', function () {
+        socket.emit('clear');
+    });
+
+    socket.on('transmit-canvasData', function (canvasData) {
+        canvasDraw(canvas, ctx, canvasData);
+    });
+
+    window.requestAnimationFrame(requestUpdate);
+});
+
+function initChat() {
     getUserName();
 
     $(window).on('beforeunload', function () {
@@ -34,22 +50,7 @@ $(document).ready(function () {
             scrollTop: $("#chat-window")[0].scrollHeight
         }, 1000);
     });
-
-    initCanvas();
-
-    socket.on('get-lines', function (lines) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (var i = 0; i < lines.length; i++) {
-            ctx.strokeStyle = lines[i].color;
-            ctx.beginPath();
-            ctx.moveTo(lines[i].oldX, lines[i].oldY);
-            ctx.lineTo(lines[i].newX, lines[i].newY);
-            ctx.stroke();
-        }
-    });
-
-    window.requestAnimationFrame(requestUpdate);
-});
+}
 
 function initCanvas() {
     canvas = document.getElementById("canvas");
@@ -57,10 +58,6 @@ function initCanvas() {
     canvas.width = 850;
     ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    $('#clear').on('click', function () {
-        socket.emit('clear');
-    });
 
     $('#canvas').on('mousedown touchstart', function (e) {
         e.preventDefault();
@@ -74,6 +71,8 @@ function initCanvas() {
         e.preventDefault();
         if (mouseDown) {
             mouseDown = false;
+            socket.emit('add-canvasData', dataBuffer);
+            dataBuffer = [];
         }
     });
 
@@ -81,14 +80,18 @@ function initCanvas() {
         e.preventDefault();
         if (mouseDown) {
             var line = {};
-            line.oldX = mousePos.x;
-            line.oldY = mousePos.y;
+            line.type = 'line';
+            line.fromX = mousePos.x;
+            line.fromY = mousePos.y;
             mousePos = getMousePos(canvas, e.originalEvent);
-            line.newX = mousePos.x;
-            line.newY = mousePos.y;
+            line.toX = mousePos.x;
+            line.toY = mousePos.y;
             line.color = canvasColor;
-
-            socket.emit('add-line', line);
+            dataBuffer.push(line);
+            if (dataBuffer.length > bufferLength) {
+                socket.emit('add-canvasData', dataBuffer);
+                dataBuffer = [];
+            }
         }
     });
 
@@ -104,22 +107,6 @@ function initCanvas() {
         ctx.strokeStyle = color.toHexString();
         canvasColor = color.toHexString();
     });
-}
-
-function getMousePos(canvas, e) {
-    var rect = canvas.getBoundingClientRect();
-    if (e.clientX) {
-        return {
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top
-        };
-    }
-    if (e.changedTouches) {
-        return {
-            x: e.changedTouches[0].pageX - rect.left,
-            y: e.changedTouches[0].pageY - rect.top
-        };
-    };
 }
 
 function getUserName() {
@@ -140,6 +127,6 @@ function getUserName() {
 }
 
 function requestUpdate() {
-    socket.emit('request-lines');
+    socket.emit('request-canvasData');
     window.requestAnimationFrame(requestUpdate);
 }
