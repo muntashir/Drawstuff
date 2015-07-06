@@ -1,7 +1,7 @@
 var app = require('./app');
 var canvasData = [];
 var userPos = {};
-var numUsers;
+var numUsers = 0;
 
 //Init HTTP server
 var port = process.env.PORT || 80;
@@ -12,37 +12,32 @@ var io = require('socket.io')(server);
 //Init socket
 io.on('connection', function (socket) {
     socket.emit('transmit-canvasData', canvasData);
-
-    socket.on('request-canvasData', function () {
-        var userData = [];
-        for (var key in userPos) {
-            if (userPos.hasOwnProperty(key)) {
-                userData.push(userPos[key]);
-            }
-        }
-        socket.emit('transmit-canvasData', canvasData.concat(userData));
-    });
+    socket.emit('transmit-userData', userPos);
 
     socket.on('add-userData', function (sessionID, data) {
         userPos[sessionID] = data;
+        io.emit('transmit-userData', userPos);
     });
 
     socket.on('add-canvasData', function (data) {
         Array.prototype.push.apply(canvasData, data);
+        io.emit('transmit-canvasData', data);
     });
 
     socket.on('clear', function () {
         canvasData = [];
-        io.emit('transmit-canvasData', canvasData);
+        socket.broadcast.emit('clear');
     });
 
     socket.on('new-user', function (sessionID, username) {
         numUsers++;
+        io.emit('numUsers', numUsers);
     });
 
     socket.on('user-leave', function (sessionID, username) {
         numUsers--;
         delete userPos[sessionID];
+        io.emit('numUsers', numUsers);
     });
 
     socket.on('chat-message', function (msg) {

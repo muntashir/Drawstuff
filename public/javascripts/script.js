@@ -7,6 +7,8 @@ var canvas;
 var canvasColor = '#000';
 var dataBuffer = [];
 var bufferLength = 3;
+var numUsers = 0;
+var canvasData = [];
 
 $(document).ready(function () {
     socket = io();
@@ -14,15 +16,27 @@ $(document).ready(function () {
     initCanvas();
 
     $('#clear').on('click', function () {
+        canvasData = [];
+        receiveCount = 0;
         socket.emit('clear');
     });
 
-    socket.on('transmit-canvasData', function (canvasData) {
-        canvasDraw(canvas, ctx, canvasData);
-        window.requestAnimationFrame(requestUpdate);
+    socket.on('clear', function () {
+        canvasData = [];
+        receiveCount = 0;
     });
 
-    window.requestAnimationFrame(requestUpdate);
+    socket.on('transmit-canvasData', function (data) {
+        Array.prototype.push.apply(canvasData, data);
+    });
+
+    socket.on('transmit-userData', function (data) {
+        canvasDraw(canvas, ctx, Array.prototype.concat(canvasData, getUserData(data)));
+    });
+
+    socket.on('numUsers', function (x) {
+        numUsers = x;
+    });
 });
 
 function initChat() {
@@ -93,12 +107,13 @@ function initCanvas() {
     $(window).on('mousemove touchmove', function (e) {
         e.preventDefault();
 
-        if (mouseDown) {
+        if (mouseDown && mousePos) {
             var line = {};
             line.type = 'line';
             line.fromX = mousePos.x;
             line.fromY = mousePos.y;
             mousePos = getMousePos(canvas, e.originalEvent);
+            if (!mousePos) return;
             line.toX = mousePos.x;
             line.toY = mousePos.y;
             line.color = canvasColor;
@@ -141,6 +156,12 @@ function getUserName() {
     });
 }
 
-function requestUpdate() {
-    socket.emit('request-canvasData');
+function getUserData(userPos) {
+    var userData = [];
+    for (var key in userPos) {
+        if (userPos.hasOwnProperty(key)) {
+            userData.push(userPos[key]);
+        }
+    }
+    return userData;
 }
