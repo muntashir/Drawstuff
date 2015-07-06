@@ -92,6 +92,15 @@ function initCanvas() {
         if (!mouseDown) {
             mouseDown = true;
             mousePos = getMousePos(canvas, e.originalEvent);
+            var point = {};
+            point.type = 'path-start';
+            point.id = sessionID;
+            point.x = mousePos.x;
+            point.y = mousePos.y;
+            point.color = canvasColor;
+            point.thickness = thickness;
+            dataBuffer.push(point);
+            flushBuffer();
         }
     });
 
@@ -120,19 +129,15 @@ function initCanvas() {
     $(window).on('mousemove touchmove', function (e) {
         e.preventDefault();
 
-        if (mouseDown && mousePos) {
-            var line = {};
-            line.type = 'line';
-            line.fromX = mousePos.x;
-            line.fromY = mousePos.y;
+        if (mouseDown) {
+            var point = {};
+            point.type = 'path-point';
             mousePos = getMousePos(canvas, e.originalEvent);
-            if (!mousePos) return;
-            line.toX = mousePos.x;
-            line.toY = mousePos.y;
-            line.color = canvasColor;
-            line.thickness = thickness;
-            dataBuffer.push(line);
-            if ((dataBuffer.length > bufferLength) || (line.fromX === line.toX && line.fromY === line.toY)) {
+            point.x = mousePos.x;
+            point.y = mousePos.y;
+            point.id = sessionID;
+            dataBuffer.push(point);
+            if ((dataBuffer.length > bufferLength) || (point.fromX === point.toX && point.fromY === point.toY)) {
                 flushBuffer();
             }
         }
@@ -154,7 +159,7 @@ function initCanvas() {
     $("#thickness").slider({
         id: 'thickness',
         min: 1,
-        max: 5,
+        max: 15,
         value: thickness,
         selection: 'none'
     });
