@@ -8,10 +8,13 @@ function canvasDraw(canvas, ctx, canvasData) {
             ctx.lineTo(canvasData[i].toX, canvasData[i].toY);
             ctx.stroke();
         } else if (canvasData[i].type === 'user') {
-            ctx.fillStyle = 'black';
+            ctx.fillStyle = canvasData[i].color;
             ctx.beginPath();
             ctx.arc(canvasData[i].centerX, canvasData[i].centerY, 2, 0, 2 * Math.PI);
             ctx.fill();
+            ctx.font = "20px Lato";
+            ctx.textAlign = 'center';
+            ctx.fillText(username, canvasData[i].centerX, canvasData[i].centerY - 7);
         }
     }
 }
