@@ -48,6 +48,7 @@ io.on('connection', function (socket) {
         numUsers--;
         delete userPos[sessionID];
         io.emit('numUsers', numUsers);
+        io.emit('transmit-userData', getUserData(userPos));
     });
 
     socket.on('chat-message', function (msg) {
