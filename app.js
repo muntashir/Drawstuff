@@ -1,7 +1,7 @@
 //Init modules
 var path = require('path');
 var favicon = require('serve-favicon');
-var logger = require('morgan');
+//var logger = require('morgan');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 var stylus = require('stylus');
@@ -19,7 +19,7 @@ app.set('view engine', 'jade');
 
 //Init middleware
 app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(logger('dev'));
+//app.use(logger('dev'));
 app.use(session({
     secret: 'SHHH EQUU',
     resave: true,
