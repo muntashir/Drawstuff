@@ -2,7 +2,7 @@
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
-var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var bodyParser = require('body-parser');
 var stylus = require('stylus');
 
@@ -20,11 +20,15 @@ app.set('view engine', 'jade');
 //Init middleware
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
+app.use(session({
+    secret: 'SHHH EQUU',
+    resave: true,
+    saveUninitialized: true
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
 }));
-app.use(cookieParser());
 app.use(stylus.middleware({
     src: __dirname + '/views',
     dest: __dirname + '/public'

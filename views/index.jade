@@ -1,6 +1,8 @@
 extends layout
 
 block script
+    script.
+        sessionID="#{sessionID}";
     script(src='/javascripts/script.js')
     script(src='/javascripts/canvas.js')
 

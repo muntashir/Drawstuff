@@ -1,6 +1,7 @@
 var app = require('./app');
 var canvasData = [];
-var users;
+var userPos = {};
+var numUsers;
 
 //Init HTTP server
 var port = process.env.PORT || 80;
@@ -13,7 +14,17 @@ io.on('connection', function (socket) {
     socket.emit('transmit-canvasData', canvasData);
 
     socket.on('request-canvasData', function () {
-        socket.emit('transmit-canvasData', canvasData);
+        var userData = [];
+        for (var key in userPos) {
+            if (userPos.hasOwnProperty(key)) {
+                userData.push(userPos[key]);
+            }
+        }
+        socket.emit('transmit-canvasData', canvasData.concat(userData));
+    });
+
+    socket.on('add-userData', function (sessionID, data) {
+        userPos[sessionID] = data;
     });
 
     socket.on('add-canvasData', function (data) {
@@ -25,12 +36,13 @@ io.on('connection', function (socket) {
         io.emit('transmit-canvasData', canvasData);
     });
 
-    socket.on('new-user', function (username) {
-        users++;
+    socket.on('new-user', function (sessionID, username) {
+        numUsers++;
     });
 
-    socket.on('user-leave', function (username) {
-        users--;
+    socket.on('user-leave', function (sessionID, username) {
+        numUsers--;
+        userPos[sessionID] = {};
     });
 
     socket.on('chat-message', function (msg) {
