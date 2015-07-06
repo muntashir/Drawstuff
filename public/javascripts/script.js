@@ -19,6 +19,7 @@ $(document).ready(function () {
 
     socket.on('transmit-canvasData', function (canvasData) {
         canvasDraw(canvas, ctx, canvasData);
+        window.requestAnimationFrame(requestUpdate);
     });
 
     window.requestAnimationFrame(requestUpdate);
@@ -142,5 +143,4 @@ function getUserName() {
 
 function requestUpdate() {
     socket.emit('request-canvasData');
-    window.requestAnimationFrame(requestUpdate);
 }
