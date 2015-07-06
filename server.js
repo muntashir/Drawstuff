@@ -42,7 +42,7 @@ io.on('connection', function (socket) {
 
     socket.on('user-leave', function (sessionID, username) {
         numUsers--;
-        userPos[sessionID] = {};
+        delete userPos[sessionID];
     });
 
     socket.on('chat-message', function (msg) {

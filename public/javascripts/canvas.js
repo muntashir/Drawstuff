@@ -14,7 +14,7 @@ function canvasDraw(canvas, ctx, canvasData) {
             ctx.fill();
             ctx.font = "20px Lato";
             ctx.textAlign = 'center';
-            ctx.fillText(username, canvasData[i].centerX, canvasData[i].centerY - 7);
+            ctx.fillText(canvasData[i].username, canvasData[i].centerX, canvasData[i].centerY - 7);
         }
     }
 }

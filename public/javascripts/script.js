@@ -30,7 +30,7 @@ function initChat() {
     $(window).on('beforeunload', function () {
         if (username) {
             socket.emit('chat-message', username + " has left");
-            socket.emit('user-leave', username);
+            socket.emit('user-leave', sessionID, username);
         }
         socket.close();
     });
