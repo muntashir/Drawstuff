@@ -8,6 +8,7 @@ var canvasColor = '#000';
 var dataBuffer = [];
 var bufferLength = 3;
 var numUsers = 0;
+var thickness = 2;
 var userData = [];
 var canvasData = [];
 
@@ -112,6 +113,7 @@ function initCanvas() {
             user.centerX = userPos.x;
             user.centerY = userPos.y;
             user.color = canvasColor;
+            user.thickness = thickness
             socket.emit('add-userData', sessionID, user);
         }
     });
@@ -128,6 +130,7 @@ function initCanvas() {
             line.toX = mousePos.x;
             line.toY = mousePos.y;
             line.color = canvasColor;
+            line.thickness = thickness;
             dataBuffer.push(line);
             if ((dataBuffer.length > bufferLength) || (line.fromX === line.toX && line.fromY === line.toY)) {
                 flushBuffer();
@@ -146,6 +149,18 @@ function initCanvas() {
     $("#color-picker").on('move.spectrum change.spectrum', function (e, color) {
         ctx.strokeStyle = color.toHexString();
         canvasColor = color.toHexString();
+    });
+
+    $("#thickness").slider({
+        id: 'thickness',
+        min: 1,
+        max: 5,
+        value: thickness,
+        selection: 'none'
+    });
+
+    $("#thickness").on('slide', function (slider) {
+        thickness = slider.value;
     });
 }
 

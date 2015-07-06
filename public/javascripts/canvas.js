@@ -6,11 +6,12 @@ function canvasDraw(canvas, ctx, canvasData) {
             ctx.beginPath();
             ctx.moveTo(canvasData[i].fromX, canvasData[i].fromY);
             ctx.lineTo(canvasData[i].toX, canvasData[i].toY);
+            ctx.lineWidth = canvasData[i].thickness;
             ctx.stroke();
         } else if (canvasData[i].type === 'user') {
             ctx.fillStyle = canvasData[i].color;
             ctx.beginPath();
-            ctx.arc(canvasData[i].centerX, canvasData[i].centerY, 2, 0, 2 * Math.PI);
+            ctx.arc(canvasData[i].centerX, canvasData[i].centerY, canvasData[i].thickness / 2, 0, 2 * Math.PI);
             ctx.fill();
             ctx.font = "20px Lato";
             ctx.textAlign = 'center';
