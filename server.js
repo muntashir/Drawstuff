@@ -9,6 +9,16 @@ var http = require('http');
 var server = http.createServer(app);
 var io = require('socket.io')(server);
 
+function getUserData(userPos) {
+    var userData = [];
+    for (var key in userPos) {
+        if (userPos.hasOwnProperty(key)) {
+            userData.push(userPos[key]);
+        }
+    }
+    return userData;
+}
+
 //Init socket
 io.on('connection', function (socket) {
     socket.emit('transmit-canvasData', canvasData);
@@ -16,12 +26,12 @@ io.on('connection', function (socket) {
 
     socket.on('add-userData', function (sessionID, data) {
         userPos[sessionID] = data;
-        io.emit('transmit-userData', userPos);
+        io.emit('transmit-userData', getUserData(userPos));
     });
 
     socket.on('add-canvasData', function (data) {
         Array.prototype.push.apply(canvasData, data);
-        io.emit('transmit-canvasData', data);
+        socket.broadcast.emit('transmit-canvasData', data);
     });
 
     socket.on('clear', function () {

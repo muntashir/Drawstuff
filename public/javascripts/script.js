@@ -8,6 +8,7 @@ var canvasColor = '#000';
 var dataBuffer = [];
 var bufferLength = 3;
 var numUsers = 0;
+var userData = [];
 var canvasData = [];
 
 $(document).ready(function () {
@@ -17,13 +18,11 @@ $(document).ready(function () {
 
     $('#clear').on('click', function () {
         canvasData = [];
-        receiveCount = 0;
         socket.emit('clear');
     });
 
     socket.on('clear', function () {
         canvasData = [];
-        receiveCount = 0;
     });
 
     socket.on('transmit-canvasData', function (data) {
@@ -31,13 +30,20 @@ $(document).ready(function () {
     });
 
     socket.on('transmit-userData', function (data) {
-        canvasDraw(canvas, ctx, Array.prototype.concat(canvasData, getUserData(data)));
+        userData = data;
     });
 
-    socket.on('numUsers', function (x) {
-        numUsers = x;
+    socket.on('numUsers', function (n) {
+        numUsers = n;
     });
+
+    window.requestAnimationFrame(drawLoop);
 });
+
+function drawLoop() {
+    canvasDraw(canvas, ctx, Array.prototype.concat(canvasData, userData));
+    window.requestAnimationFrame(drawLoop);
+}
 
 function initChat() {
     getUserName();
@@ -67,6 +73,12 @@ function initChat() {
     });
 }
 
+function flushBuffer() {
+    socket.emit('add-canvasData', dataBuffer);
+    Array.prototype.push.apply(canvasData, dataBuffer);
+    dataBuffer = [];
+}
+
 function initCanvas() {
     canvas = document.getElementById("canvas");
     canvas.height = 500;
@@ -86,8 +98,7 @@ function initCanvas() {
         e.preventDefault();
         if (mouseDown) {
             mouseDown = false;
-            socket.emit('add-canvasData', dataBuffer);
-            dataBuffer = [];
+            flushBuffer();
         }
     });
 
@@ -119,8 +130,7 @@ function initCanvas() {
             line.color = canvasColor;
             dataBuffer.push(line);
             if ((dataBuffer.length > bufferLength) || (line.fromX === line.toX && line.fromY === line.toY)) {
-                socket.emit('add-canvasData', dataBuffer);
-                dataBuffer = [];
+                flushBuffer();
             }
         }
     });
@@ -154,14 +164,4 @@ function getUserName() {
             }
         }
     });
-}
-
-function getUserData(userPos) {
-    var userData = [];
-    for (var key in userPos) {
-        if (userPos.hasOwnProperty(key)) {
-            userData.push(userPos[key]);
-        }
-    }
-    return userData;
 }
