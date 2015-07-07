@@ -1,7 +1,6 @@
 var app = require('./app');
-var canvasData = [];
+var canvasData = {};
 var userPos = {};
-var numUsers = 0;
 
 //Init HTTP server
 var port = process.env.PORT || 80;
@@ -21,7 +20,6 @@ function getUserData(userPos) {
 
 //Init socket
 io.on('connection', function (socket) {
-    socket.emit('transmit-canvasData', canvasData);
     socket.emit('transmit-userData', userPos);
 
     socket.on('add-userData', function (sessionID, data) {
@@ -29,25 +27,30 @@ io.on('connection', function (socket) {
         io.emit('transmit-userData', getUserData(userPos));
     });
 
-    socket.on('add-canvasData', function (data) {
-        Array.prototype.push.apply(canvasData, data);
-        socket.broadcast.emit('transmit-canvasData', data);
+    socket.on('add-canvasData', function (sessionID, data) {
+        Array.prototype.push.apply(canvasData[sessionID], data);
+        socket.broadcast.emit('transmit-canvasData', sessionID, data);
     });
 
     socket.on('clear', function () {
-        canvasData = [];
+        for (var key in canvasData) {
+            if (canvasData.hasOwnProperty(key)) {
+                canvasData[key] = [];
+            }
+        }
         socket.broadcast.emit('clear');
     });
 
     socket.on('new-user', function (sessionID, username) {
-        numUsers++;
-        io.emit('numUsers', numUsers);
+        socket.broadcast.emit('add-user', sessionID);
+        if (!canvasData[sessionID]) {
+            canvasData[sessionID] = [];
+        }
+        socket.emit('init-canvasData', canvasData);
     });
 
     socket.on('user-leave', function (sessionID, username) {
-        numUsers--;
         delete userPos[sessionID];
-        io.emit('numUsers', numUsers);
         io.emit('transmit-userData', getUserData(userPos));
     });
 

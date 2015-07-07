@@ -10,7 +10,7 @@ var bufferLength = 3;
 var numUsers = 0;
 var thickness = 2;
 var userData = [];
-var canvasData = [];
+var canvasData = {};
 
 $(document).ready(function () {
     socket = io();
@@ -18,16 +18,32 @@ $(document).ready(function () {
     initCanvas();
 
     $('#clear').on('click', function () {
-        canvasData = [];
+        for (var key in canvasData) {
+            if (canvasData.hasOwnProperty(key)) {
+                canvasData[key] = [];
+            }
+        }
         socket.emit('clear');
     });
 
     socket.on('clear', function () {
-        canvasData = [];
+        for (var key in canvasData) {
+            if (canvasData.hasOwnProperty(key)) {
+                canvasData[key] = [];
+            }
+        }
     });
 
-    socket.on('transmit-canvasData', function (data) {
-        Array.prototype.push.apply(canvasData, data);
+    socket.on('add-user', function (id, username) {
+        canvasData[id] = [];
+    });
+
+    socket.on('init-canvasData', function (data) {
+        canvasData = data;
+    });
+
+    socket.on('transmit-canvasData', function (id, data) {
+        Array.prototype.push.apply(canvasData[id], data);
     });
 
     socket.on('transmit-userData', function (data) {
@@ -42,7 +58,7 @@ $(document).ready(function () {
 });
 
 function drawLoop() {
-    canvasDraw(canvas, ctx, Array.prototype.concat(canvasData, userData));
+    canvasDraw(canvas, ctx, canvasData, userData);
     window.requestAnimationFrame(drawLoop);
 }
 
@@ -75,8 +91,8 @@ function initChat() {
 }
 
 function flushBuffer() {
-    socket.emit('add-canvasData', dataBuffer);
-    Array.prototype.push.apply(canvasData, dataBuffer);
+    socket.emit('add-canvasData', sessionID, dataBuffer);
+    Array.prototype.push.apply(canvasData[sessionID], dataBuffer);
     dataBuffer = [];
 }
 
@@ -94,7 +110,6 @@ function initCanvas() {
             mousePos = getMousePos(canvas, e.originalEvent);
             var point = {};
             point.type = 'path-start';
-            point.id = sessionID;
             point.x = mousePos.x;
             point.y = mousePos.y;
             point.color = canvasColor;
@@ -117,7 +132,6 @@ function initCanvas() {
             e.preventDefault();
             var userPos = getMousePos(canvas, e.originalEvent);
             var user = {};
-            user.type = 'user';
             user.username = username;
             user.centerX = userPos.x;
             user.centerY = userPos.y;
@@ -135,7 +149,6 @@ function initCanvas() {
             mousePos = getMousePos(canvas, e.originalEvent);
             point.x = mousePos.x;
             point.y = mousePos.y;
-            point.id = sessionID;
             dataBuffer.push(point);
             if ((dataBuffer.length > bufferLength) || (point.fromX === point.toX && point.fromY === point.toY)) {
                 flushBuffer();
@@ -180,7 +193,7 @@ function getUserName() {
                 username = result;
                 socket.emit('chat-message', username + " has joined");
                 $('#chat-messages').append($('<li>').text(username + " has joined").addClass('list-group-item active'));
-                socket.emit('new-user', username);
+                socket.emit('new-user', sessionID, username);
             }
         }
     });
