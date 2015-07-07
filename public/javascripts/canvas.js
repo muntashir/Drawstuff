@@ -43,6 +43,7 @@ function canvasDraw(canvas, ctx, canvasData, userData, forceUpdate) {
                 var dataElement = canvasData[key];
                 for (var i = 0, len = dataElement.length; i < len; i += 1) {
                     if (dataElement[i].type === 'path-start') {
+                        path.time = dataElement[i].time;
                         path.color = dataElement[i].color;
                         path.startX = dataElement[i].x;
                         path.startY = dataElement[i].y;

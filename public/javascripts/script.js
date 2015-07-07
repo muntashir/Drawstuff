@@ -115,7 +115,7 @@ function initCanvas() {
             mousePos = getMousePos(canvas, e.originalEvent);
             var point = {};
             point.type = 'path-start';
-            point.time = Date();
+            point.time = new Date().getTime();
             point.x = mousePos.x;
             point.y = mousePos.y;
             point.color = canvasColor;
