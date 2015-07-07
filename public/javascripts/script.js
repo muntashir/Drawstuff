@@ -1,16 +1,22 @@
+var canvas;
 var ctx;
+
 var socket;
+var username;
+
 var mousePos;
 var mouseDown = false;
-var username;
-var canvas;
+
 var canvasColor = '#000';
-var dataBuffer = [];
-var bufferLength = 3;
-var numUsers = 0;
 var thickness = 2;
+
+//Data
 var userData = [];
 var canvasData = {};
+var dataBuffer = [];
+var bufferLength = 3;
+
+//var sessionID passed in from Jade
 
 $(document).ready(function () {
     socket = io();
@@ -18,28 +24,18 @@ $(document).ready(function () {
     initCanvas();
 
     $('#clear').on('click', function () {
-        canvasData['size'] = 0;
-        canvasDraw(canvas, ctx, canvasData, userData, true);
-        for (var key in canvasData) {
-            if (canvasData.hasOwnProperty(key)) {
-                canvasData[key] = [];
-            }
-        }
+        clearCanvas()
         socket.emit('clear');
     });
 
     socket.on('clear', function () {
-        canvasData['size'] = 0;
-        canvasDraw(canvas, ctx, canvasData, userData, true);
-        for (var key in canvasData) {
-            if (canvasData.hasOwnProperty(key)) {
-                canvasData[key] = [];
-            }
-        }
+        clearCanvas()
     });
 
     socket.on('add-user', function (id, username) {
-        canvasData[id] = [];
+        if (!canvasData[sessionID]) {
+            canvasData[sessionID] = [];
+        }
     });
 
     socket.on('init-canvasData', function (data) {
@@ -47,7 +43,7 @@ $(document).ready(function () {
     });
 
     socket.on('transmit-canvasData', function (id, data) {
-        canvasData['size'] += data.length;
+        canvasData.size += 1;
         Array.prototype.push.apply(canvasData[id], data);
     });
 
@@ -55,12 +51,19 @@ $(document).ready(function () {
         userData = data;
     });
 
-    socket.on('numUsers', function (n) {
-        numUsers = n;
-    });
-
+    //Start drawLoop
     window.requestAnimationFrame(drawLoop);
 });
+
+function clearCanvas() {
+    canvasData.size = 0;
+    canvasDraw(canvas, ctx, canvasData, userData, true);
+    for (var key in canvasData) {
+        if (canvasData.hasOwnProperty(key)) {
+            canvasData[key] = [];
+        }
+    }
+}
 
 function drawLoop() {
     canvasDraw(canvas, ctx, canvasData, userData);
@@ -104,7 +107,7 @@ function flushBuffer() {
 function initCanvas() {
     canvas = document.getElementById("canvas");
     canvas.height = 500;
-    canvas.width = 850;
+    canvas.width = 800;
     ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -133,22 +136,29 @@ function initCanvas() {
         }
     });
 
-    $('#canvas').on('mousemove touchmove', function (e) {
+    $('#canvas').on('mouseleave', function (e) {
         if (username) {
-            e.preventDefault();
+            var user = {};
+            socket.emit('add-userData', sessionID, user);
+        }
+    });
+
+    $('#canvas').on('mousemove touchmove', function (e) {
+        e.preventDefault();
+        if (username) {
             var userPos = getMousePos(canvas, e.originalEvent);
             var user = {};
             user.username = username;
             user.centerX = userPos.x;
             user.centerY = userPos.y;
             user.color = canvasColor;
-            user.thickness = thickness
+            user.thickness = thickness;
             socket.emit('add-userData', sessionID, user);
         }
     });
+
     $(window).on('mousemove touchmove', function (e) {
         e.preventDefault();
-
         if (mouseDown) {
             var point = {};
             point.type = 'path-point';

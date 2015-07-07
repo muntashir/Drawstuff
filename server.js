@@ -1,8 +1,9 @@
 var app = require('./app');
+
 var canvasData = {
     'size': 0
 };
-var userPos = {};
+var userPositionsObject = {};
 
 //Init HTTP server
 var port = process.env.PORT || 80;
@@ -10,11 +11,11 @@ var http = require('http');
 var server = http.createServer(app);
 var io = require('socket.io')(server);
 
-function getUserData(userPos) {
+function getUserData(userPositionsObject) {
     var userData = [];
-    for (var key in userPos) {
-        if (userPos.hasOwnProperty(key)) {
-            userData.push(userPos[key]);
+    for (var key in userPositionsObject) {
+        if (userPositionsObject.hasOwnProperty(key)) {
+            userData.push(userPositionsObject[key]);
         }
     }
     return userData;
@@ -22,21 +23,21 @@ function getUserData(userPos) {
 
 //Init socket
 io.on('connection', function (socket) {
-    socket.emit('transmit-userData', userPos);
+    socket.emit('transmit-userData', userPositionsObject);
 
     socket.on('add-userData', function (sessionID, data) {
-        userPos[sessionID] = data;
-        io.emit('transmit-userData', getUserData(userPos));
+        userPositionsObject[sessionID] = data;
+        io.emit('transmit-userData', getUserData(userPositionsObject));
     });
 
     socket.on('add-canvasData', function (sessionID, data) {
-        canvasData['size'] += data.length;
+        canvasData.size += 1;
         Array.prototype.push.apply(canvasData[sessionID], data);
         socket.broadcast.emit('transmit-canvasData', sessionID, data);
     });
 
     socket.on('clear', function () {
-        canvasData['size'] = 0;
+        canvasData.size = 0;
         for (var key in canvasData) {
             if (canvasData.hasOwnProperty(key)) {
                 canvasData[key] = [];
@@ -54,8 +55,8 @@ io.on('connection', function (socket) {
     });
 
     socket.on('user-leave', function (sessionID, username) {
-        delete userPos[sessionID];
-        io.emit('transmit-userData', getUserData(userPos));
+        delete userPositionsObject[sessionID];
+        io.emit('transmit-userData', getUserData(userPositionsObject));
     });
 
     socket.on('chat-message', function (msg) {
