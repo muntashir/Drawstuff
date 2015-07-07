@@ -18,17 +18,29 @@ function insertPath(path) {
 
 function drawPaths(ctx) {
     for (var pathIndex = 0, outerLen = paths.length; pathIndex < outerLen; pathIndex += 1) {
-        //Set path properties
+        ctx.beginPath();
+        ctx.fillStyle = paths[pathIndex].color;
+        ctx.arc(paths[pathIndex].x[0], paths[pathIndex].y[0], paths[pathIndex].thickness / 2, 0, 2 * Math.PI);
+        ctx.fill();
+
         ctx.beginPath();
         ctx.strokeStyle = paths[pathIndex].color;
         ctx.lineWidth = paths[pathIndex].thickness;
         ctx.moveTo(paths[pathIndex].startX, paths[pathIndex].startY);
 
         //Draw points
-        for (var pointIndex = 0, innerLen = paths[pathIndex].x.length; pointIndex < innerLen; pointIndex += 1) {
-            ctx.lineTo(paths[pathIndex].x[pointIndex], paths[pathIndex].y[pointIndex]);
+        for (var pointIndex = 0, innerLen = paths[pathIndex].x.length - 2; pointIndex < innerLen; pointIndex += 1) {
+            var c = (paths[pathIndex].x[pointIndex] + paths[pathIndex].x[pointIndex + 1]) / 2;
+            var d = (paths[pathIndex].y[pointIndex] + paths[pathIndex].y[pointIndex + 1]) / 2;
+            ctx.quadraticCurveTo(paths[pathIndex].x[pointIndex], paths[pathIndex].y[pointIndex], c, d);
         }
+        ctx.quadraticCurveTo(paths[pathIndex].x[pointIndex], paths[pathIndex].y[pointIndex], paths[pathIndex].x[pointIndex + 1], paths[pathIndex].y[pointIndex + 1]);
         ctx.stroke();
+
+        ctx.beginPath();
+        ctx.fillStyle = paths[pathIndex].color;
+        ctx.arc(paths[pathIndex].x[pointIndex + 1], paths[pathIndex].y[pointIndex + 1], paths[pathIndex].thickness / 2, 0, 2 * Math.PI);
+        ctx.fill();
     }
 }
 
