@@ -71,7 +71,16 @@ function drawLoop() {
 }
 
 function initChat() {
-    getUserName();
+    socket.emit('get-username', sessionID);
+
+    socket.on('send-username', function (u) {
+        if (u) {
+            username = u;
+            addUser();
+        } else {
+            getUserName();
+        }
+    });
 
     $(window).on('beforeunload', function () {
         if (username) {
@@ -207,10 +216,14 @@ function getUserName() {
                 getUserName();
             } else {
                 username = result;
-                socket.emit('chat-message', username + " has joined");
-                $('#chat-messages').append($('<li>').text(username + " has joined").addClass('list-group-item active'));
-                socket.emit('new-user', sessionID, username);
+                addUser();
             }
         }
     });
+}
+
+function addUser() {
+    socket.emit('chat-message', username + " has joined");
+    $('#chat-messages').append($('<li>').text(username + " has joined").addClass('list-group-item active'));
+    socket.emit('new-user', sessionID, username);
 }

@@ -25,6 +25,14 @@ function getUserData(userPositionsObject) {
 io.on('connection', function (socket) {
     socket.emit('transmit-userData', userPositionsObject);
 
+    socket.on('get-username', function (sessionID) {
+        if (canvasData[sessionID]) {
+            socket.emit('send-username', userPositionsObject[sessionID].username);
+        } else {
+            socket.emit('send-username', null);
+        }
+    });
+
     socket.on('add-userData', function (sessionID, data) {
         userPositionsObject[sessionID] = data;
         io.emit('transmit-userData', getUserData(userPositionsObject));
