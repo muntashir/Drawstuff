@@ -1,5 +1,7 @@
 var app = require('./app');
-var canvasData = {};
+var canvasData = {
+    'size': 0
+};
 var userPos = {};
 
 //Init HTTP server
@@ -28,11 +30,13 @@ io.on('connection', function (socket) {
     });
 
     socket.on('add-canvasData', function (sessionID, data) {
+        canvasData['size'] += data.length;
         Array.prototype.push.apply(canvasData[sessionID], data);
         socket.broadcast.emit('transmit-canvasData', sessionID, data);
     });
 
     socket.on('clear', function () {
+        canvasData['size'] = 0;
         for (var key in canvasData) {
             if (canvasData.hasOwnProperty(key)) {
                 canvasData[key] = [];

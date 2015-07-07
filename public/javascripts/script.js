@@ -18,6 +18,8 @@ $(document).ready(function () {
     initCanvas();
 
     $('#clear').on('click', function () {
+        canvasData['size'] = 0;
+        canvasDraw(canvas, ctx, canvasData, userData, true);
         for (var key in canvasData) {
             if (canvasData.hasOwnProperty(key)) {
                 canvasData[key] = [];
@@ -27,6 +29,8 @@ $(document).ready(function () {
     });
 
     socket.on('clear', function () {
+        canvasData['size'] = 0;
+        canvasDraw(canvas, ctx, canvasData, userData, true);
         for (var key in canvasData) {
             if (canvasData.hasOwnProperty(key)) {
                 canvasData[key] = [];
@@ -43,6 +47,7 @@ $(document).ready(function () {
     });
 
     socket.on('transmit-canvasData', function (id, data) {
+        canvasData['size'] += data.length;
         Array.prototype.push.apply(canvasData[id], data);
     });
 
@@ -110,6 +115,7 @@ function initCanvas() {
             mousePos = getMousePos(canvas, e.originalEvent);
             var point = {};
             point.type = 'path-start';
+            point.time = Date();
             point.x = mousePos.x;
             point.y = mousePos.y;
             point.color = canvasColor;
