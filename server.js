@@ -1,9 +1,9 @@
 var app = require('./app');
 
+var usernames = {};
 var canvasData = {
     'size': 0
 };
-var userPositionsObject = {};
 
 //Init HTTP server
 var port = process.env.PORT || 80;
@@ -11,31 +11,18 @@ var http = require('http');
 var server = http.createServer(app);
 var io = require('socket.io')(server);
 
-function getUserData(userPositionsObject) {
-    var userData = [];
-    for (var key in userPositionsObject) {
-        if (userPositionsObject.hasOwnProperty(key)) {
-            userData.push(userPositionsObject[key]);
-        }
-    }
-    return userData;
-}
-
 //Init socket
 io.on('connection', function (socket) {
-    socket.emit('transmit-userData', userPositionsObject);
-
     socket.on('get-username', function (sessionID) {
-        if (canvasData.hasOwnProperty(sessionID)) {
-            socket.emit('send-username', userPositionsObject[sessionID].username);
+        if (usernames.hasOwnProperty(sessionID)) {
+            socket.emit('send-username', usernames[sessionID]);
         } else {
             socket.emit('send-username', null);
         }
     });
 
     socket.on('add-userData', function (sessionID, data) {
-        userPositionsObject[sessionID] = data;
-        io.emit('transmit-userData', getUserData(userPositionsObject));
+        socket.broadcast.emit('transmit-userData', sessionID, data);
     });
 
     socket.on('add-canvasData', function (sessionID, data) {
@@ -56,9 +43,10 @@ io.on('connection', function (socket) {
 
     socket.on('new-user', function (sessionID, username) {
         socket.broadcast.emit('add-user', sessionID);
-        if (!canvasData[sessionID]) {
+        if (!canvasData.hasOwnProperty(sessionID)) {
             canvasData[sessionID] = [];
         }
+        usernames[sessionID] = username;
         socket.emit('init-canvasData', canvasData);
     });
 

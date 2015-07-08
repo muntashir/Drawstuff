@@ -11,7 +11,7 @@ var canvasColor = '#000';
 var thickness = 2;
 
 //Data
-var userData = [];
+var userPositionsObject = {};
 var canvasData = {};
 var dataBuffer = [];
 var bufferLength = 3;
@@ -33,8 +33,8 @@ $(document).ready(function () {
     });
 
     socket.on('add-user', function (id, username) {
-        if (!canvasData[sessionID]) {
-            canvasData[sessionID] = [];
+        if (!canvasData.hasOwnProperty(id)) {
+            canvasData[id] = [];
         }
     });
 
@@ -47,8 +47,8 @@ $(document).ready(function () {
         Array.prototype.push.apply(canvasData[id], data);
     });
 
-    socket.on('transmit-userData', function (data) {
-        userData = data;
+    socket.on('transmit-userData', function (id, data) {
+        userPositionsObject[id] = data;
     });
 
     //Start drawLoop
@@ -57,7 +57,7 @@ $(document).ready(function () {
 
 function clearCanvas() {
     canvasData.size = 0;
-    canvasDraw(canvas, ctx, canvasData, userData, true);
+    canvasDraw(canvas, ctx, canvasData, userPositionsObject, true);
     for (var key in canvasData) {
         if (canvasData.hasOwnProperty(key)) {
             canvasData[key] = [];
@@ -66,7 +66,7 @@ function clearCanvas() {
 }
 
 function drawLoop() {
-    canvasDraw(canvas, ctx, canvasData, userData);
+    canvasDraw(canvas, ctx, canvasData, userPositionsObject);
     window.requestAnimationFrame(drawLoop);
 }
 
@@ -148,6 +148,7 @@ function initCanvas() {
     $('#canvas').on('mouseleave', function (e) {
         if (username) {
             var user = {};
+            userPositionsObject[sessionID] = user;
             socket.emit('add-userData', sessionID, user);
         }
     });
@@ -162,6 +163,7 @@ function initCanvas() {
             user.centerY = userPos.y;
             user.color = canvasColor;
             user.thickness = thickness;
+            userPositionsObject[sessionID] = user;
             socket.emit('add-userData', sessionID, user);
         }
     });

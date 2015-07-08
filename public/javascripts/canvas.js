@@ -44,7 +44,7 @@ function drawPaths(ctx) {
     }
 }
 
-function canvasDraw(canvas, ctx, canvasData, userData, forceUpdate) {
+function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
     //Clear canvas
     canvas.width = canvas.width;
 
@@ -86,6 +86,7 @@ function canvasDraw(canvas, ctx, canvasData, userData, forceUpdate) {
     ctx.font = "20px Lato";
     ctx.textAlign = 'center';
 
+    var userData = getUserData(userPositionsObject);
     for (var i = 0, len = userData.length; i < len; i += 1) {
         ctx.fillStyle = userData[i].color;
         ctx.beginPath();
@@ -110,4 +111,14 @@ function getMousePos(canvas, e) {
         };
     };
     return mousePos;
+}
+
+function getUserData(userPositionsObject) {
+    var userData = [];
+    for (var key in userPositionsObject) {
+        if (userPositionsObject.hasOwnProperty(key)) {
+            userData.push(userPositionsObject[key]);
+        }
+    }
+    return userData;
 }
