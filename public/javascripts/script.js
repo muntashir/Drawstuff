@@ -1,5 +1,7 @@
 var canvas;
 var ctx;
+var leftBorder;
+var topBorder;
 
 var socket;
 var username;
@@ -22,6 +24,9 @@ $(document).ready(function () {
     socket = io();
     initChat();
     initCanvas();
+
+    leftBorder = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10) || 0;
+    topBorder = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10) || 0;
 
     $('#clear').on('click', function () {
         clearCanvas()
@@ -124,7 +129,7 @@ function initCanvas() {
         e.preventDefault();
         if (!mouseDown) {
             mouseDown = true;
-            mousePos = getMousePos(canvas, e.originalEvent);
+            mousePos = getMousePos(canvas, e.originalEvent, leftBorder, topBorder);
             var point = {};
             point.type = 'path-start';
             point.time = new Date().getTime();
@@ -156,7 +161,7 @@ function initCanvas() {
     $('#canvas').on('mousemove touchmove', function (e) {
         e.preventDefault();
         if (username) {
-            var userPos = getMousePos(canvas, e.originalEvent);
+            var userPos = getMousePos(canvas, e.originalEvent, leftBorder, topBorder);
             var user = {};
             user.username = username;
             user.centerX = userPos.x;
@@ -173,7 +178,7 @@ function initCanvas() {
         if (mouseDown) {
             var point = {};
             point.type = 'path-point';
-            mousePos = getMousePos(canvas, e.originalEvent);
+            mousePos = getMousePos(canvas, e.originalEvent, leftBorder, topBorder);
             point.x = mousePos.x;
             point.y = mousePos.y;
             dataBuffer.push(point);

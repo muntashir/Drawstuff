@@ -1,5 +1,7 @@
 var paths = [];
 var oldDataSize = 0;
+var preCanvas;
+var preCtx;
 
 //Inserts paths in order they are drawn according to time
 function insertPath(path) {
@@ -18,17 +20,16 @@ function insertPath(path) {
 
 function drawPaths(ctx) {
     for (var pathIndex = 0, outerLen = paths.length; pathIndex < outerLen; pathIndex += 1) {
-        ctx.beginPath();
         ctx.fillStyle = paths[pathIndex].color;
+        ctx.strokeStyle = paths[pathIndex].color;
+        ctx.lineWidth = paths[pathIndex].thickness;
+
+        ctx.beginPath();
         ctx.arc(paths[pathIndex].x[0], paths[pathIndex].y[0], paths[pathIndex].thickness / 2, 0, 2 * Math.PI);
         ctx.fill();
 
         ctx.beginPath();
-        ctx.strokeStyle = paths[pathIndex].color;
-        ctx.lineWidth = paths[pathIndex].thickness;
         ctx.moveTo(paths[pathIndex].startX, paths[pathIndex].startY);
-
-        //Draw points
         for (var pointIndex = 0, innerLen = paths[pathIndex].x.length - 2; pointIndex < innerLen; pointIndex += 1) {
             var c = (paths[pathIndex].x[pointIndex] + paths[pathIndex].x[pointIndex + 1]) / 2;
             var d = (paths[pathIndex].y[pointIndex] + paths[pathIndex].y[pointIndex + 1]) / 2;
@@ -38,7 +39,6 @@ function drawPaths(ctx) {
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.fillStyle = paths[pathIndex].color;
         ctx.arc(paths[pathIndex].x[pointIndex + 1], paths[pathIndex].y[pointIndex + 1], paths[pathIndex].thickness / 2, 0, 2 * Math.PI);
         ctx.fill();
     }
@@ -54,6 +54,10 @@ function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
         var path = {};
         path.x = [];
         path.y = [];
+        preCanvas = document.createElement('canvas');
+        preCanvas.width = canvas.width;
+        preCanvas.height = canvas.height;
+        preCtx = preCanvas.getContext('2d');
 
         for (var key in canvasData) {
             if (canvasData.hasOwnProperty(key)) {
@@ -79,9 +83,12 @@ function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
             }
         }
         oldDataSize = canvasData['size'];
+        drawPaths(preCtx);
     }
 
-    drawPaths(ctx);
+    if (preCanvas) {
+        ctx.drawImage(preCanvas, 0, 0);
+    }
 
     ctx.font = "20px Lato";
     ctx.textAlign = 'center';
@@ -96,18 +103,18 @@ function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
     }
 }
 
-function getMousePos(canvas, e) {
+function getMousePos(canvas, e, leftBorder, topBorder) {
     var rect = canvas.getBoundingClientRect();
     if (e.clientX) {
         return {
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top
+            x: e.clientX - rect.left - leftBorder,
+            y: e.clientY - rect.top - topBorder
         };
     }
     if (e.changedTouches) {
         return {
-            x: e.changedTouches[0].pageX - rect.left,
-            y: e.changedTouches[0].pageY - rect.top
+            x: e.changedTouches[0].pageX - rect.left - leftBorder,
+            y: e.changedTouches[0].pageY - rect.top - topBorder
         };
     };
     return mousePos;
