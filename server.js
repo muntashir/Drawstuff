@@ -51,8 +51,8 @@ io.on('connection', function (socket) {
     });
 
     socket.on('user-leave', function (sessionID, username) {
-        delete userPositionsObject[sessionID];
-        io.emit('transmit-userData', getUserData(userPositionsObject));
+        var data = {}
+        io.emit('transmit-userData', sessionID, data);
     });
 
     socket.on('chat-message', function (msg) {
