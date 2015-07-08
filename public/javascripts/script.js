@@ -24,6 +24,7 @@ $(document).ready(function () {
     socket = io();
     initChat();
     initCanvas();
+    initPreCanvas(canvas);
 
     leftBorder = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10) || 0;
     topBorder = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10) || 0;

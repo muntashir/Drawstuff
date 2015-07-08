@@ -3,6 +3,13 @@ var oldDataSize = 0;
 var preCanvas;
 var preCtx;
 
+function initPreCanvas(canvas) {
+    preCanvas = document.createElement('canvas');
+    preCanvas.width = canvas.width;
+    preCanvas.height = canvas.height;
+    preCtx = preCanvas.getContext('2d');
+}
+
 //Inserts paths in order they are drawn according to time
 function insertPath(path) {
     if (paths.length === 0) {
@@ -45,8 +52,7 @@ function drawPaths(ctx) {
 }
 
 function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
-    //Clear canvas
-    canvas.width = canvas.width;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     //Only update paths if new data is available or update is being forced
     if (canvasData.size >= oldDataSize || forceUpdate) {
@@ -54,11 +60,8 @@ function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
         var path = {};
         path.x = [];
         path.y = [];
-        preCanvas = document.createElement('canvas');
-        preCanvas.width = canvas.width;
-        preCanvas.height = canvas.height;
-        preCtx = preCanvas.getContext('2d');
 
+        preCtx.clearRect(0, 0, canvas.width, canvas.height);
         for (var key in canvasData) {
             if (canvasData.hasOwnProperty(key)) {
                 var dataElement = canvasData[key];
