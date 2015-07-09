@@ -14,14 +14,15 @@ $(document).ready(function () {
         if ($('#join-room-text').val()) {
             roomID = $('#join-room-text').val();
             socket.emit('check-room', roomID);
-            socket.on('check-room-response', function (response) {
-                if (response) {
-                    window.location = "/rooms/" + roomID;
-                } else {
-                    bootbox.alert("Room does not exist", function () {});
-                }
-            });
         }
         return false;
+    });
+
+    socket.on('check-room-response', function (response) {
+        if (response) {
+            window.location = "/rooms/" + roomID;
+        } else {
+            bootbox.alert("Room does not exist", function () {});
+        }
     });
 });
