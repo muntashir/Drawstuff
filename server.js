@@ -13,9 +13,9 @@ var io = require('socket.io')(server);
 io.on('connection', function (socket) {
     socket.on('get-username', function (sessionID) {
         if (usernames.hasOwnProperty(sessionID)) {
-            socket.to(socket.rooms[0]).emit('send-username', usernames[sessionID]);
+            socket.emit('send-username', usernames[sessionID]);
         } else {
-            socket.to(socket.rooms[0]).emit('send-username', null);
+            socket.emit('send-username', null);
         }
     });
 
@@ -33,37 +33,40 @@ io.on('connection', function (socket) {
         };
     });
 
-    socket.on('join-room', function (roomID) {
+    socket.on('join-room', function (roomID, sessionID) {
         socket.join(roomID);
+        if (!roomData[roomID].hasOwnProperty(sessionID)) {
+            (roomData[roomID])[sessionID] = [];
+        }
     });
 
     socket.on('add-userData', function (sessionID, data) {
-        socket.broadcast.to(socket.rooms[0]).emit('transmit-userData', sessionID, data);
+        socket.broadcast.to(socket.rooms[1]).emit('transmit-userData', sessionID, data);
     });
 
     socket.on('add-canvasData', function (sessionID, data) {
-        canvasData.size += 1;
-        Array.prototype.push.apply(canvasData[sessionID], data);
-        socket.broadcast.to(socket.rooms[0]).emit('transmit-canvasData', sessionID, data);
+        roomData[socket.rooms[1]].size += 1;
+        Array.prototype.push.apply(roomData[socket.rooms[1]][sessionID], data);
+        socket.broadcast.to(socket.rooms[1]).emit('transmit-canvasData', sessionID, data);
     });
 
     socket.on('clear', function () {
-        canvasData.size = 0;
-        for (var key in canvasData) {
-            if (canvasData.hasOwnProperty(key)) {
-                canvasData[key] = [];
+        roomData[socket.rooms[1]].size = 0;
+        for (var key in roomData[socket.rooms[1]]) {
+            if (roomData[socket.rooms[1]].hasOwnProperty(key)) {
+                roomData[socket.rooms[1]][key] = [];
             }
         }
-        socket.broadcast.to(socket.rooms[0]).emit('clear');
+        socket.broadcast.to(socket.rooms[1]).emit('clear');
     });
 
     socket.on('new-user', function (sessionID, username) {
-        socket.broadcast.to(socket.rooms[0]).emit('add-user', sessionID);
-        if (!canvasData.hasOwnProperty(sessionID)) {
-            canvasData[sessionID] = [];
+        socket.broadcast.to(socket.rooms[1]).emit('add-user', sessionID);
+        if (!roomData[socket.rooms[1]].hasOwnProperty(sessionID)) {
+            (roomData[socket.rooms[1]])[sessionID] = [];
         }
         usernames[sessionID] = username;
-        socket.to(socket.rooms[0]).emit('init-canvasData', canvasData);
+        socket.emit('init-canvasData', roomData[socket.rooms[1]]);
     });
 
     socket.on('user-leave', function (sessionID, username) {
@@ -72,7 +75,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('chat-message', function (msg) {
-        socket.broadcast.to(socket.rooms[0]).emit('chat-message', msg);
+        socket.broadcast.to(socket.rooms[1]).emit('chat-message', msg);
     });
 });
 

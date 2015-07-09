@@ -25,9 +25,10 @@ function joinRoom(id) {
 
     socket.on('check-room-response', function (response) {
         if (response) {
-            socket.emit('join-room', roomID);
-            initChat();
+            socket.emit('join-room', roomID, sessionID);
+            initCanvas();
             initPreCanvas(canvas);
+            initChat();
             //Start drawLoop
             window.requestAnimationFrame(drawLoop);
         } else {
@@ -41,7 +42,6 @@ function joinRoom(id) {
 $(document).ready(function () {
     socket = io();
     initControls();
-    initCanvas();
     joinRoom(roomID);
 
     $('#clear').on('click', function () {
