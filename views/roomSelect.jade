@@ -12,13 +12,13 @@ block content
     h1 #{title}
     #window
         .well(id='chat-window')
-            form.form-group(action='' id='chat-form')
+            form.form-group(action='' id='create-room-form')
                 .input-group
-                    input.form-control(type='text' id='room-join')
+                    input.form-control(type='text' id='create-room-text')
                     span.input-group-btn
-                        button.btn.btn-primary(id='chat-send') Send
-            form.form-group(action='' id='chat-form')
+                        button.btn.btn-primary.button Create room
+            form.form-group(action='' id='join-room-form')
                 .input-group
-                    input.form-control(type='text' id='room')
+                    input.form-control(type='text' id='join-room-text')
                     span.input-group-btn
-                        button.btn.btn-primary(id='chat-send') Send
+                        button.btn.btn-primary.button Join room
