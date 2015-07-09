@@ -1,9 +1,13 @@
 extends layout
 
-block script
+block styles
+    link(rel='stylesheet', href='/stylesheets/index.css')
+
+block scripts
     script.
         sessionID="#{sessionID}";
-    script(src='/javascripts/script.js')
+        roomID="#{roomID}";
+    script(src='/javascripts/client.js')
     script(src='/javascripts/canvas.js')
 
 block content

@@ -1,9 +1,7 @@
 var app = require('./app');
 
 var usernames = {};
-var canvasData = {
-    'size': 0
-};
+var roomData = {};
 
 //Init HTTP server
 var port = process.env.PORT || 80;
@@ -15,20 +13,38 @@ var io = require('socket.io')(server);
 io.on('connection', function (socket) {
     socket.on('get-username', function (sessionID) {
         if (usernames.hasOwnProperty(sessionID)) {
-            socket.emit('send-username', usernames[sessionID]);
+            socket.to(socket.rooms[0]).emit('send-username', usernames[sessionID]);
         } else {
-            socket.emit('send-username', null);
+            socket.to(socket.rooms[0]).emit('send-username', null);
         }
     });
 
+    socket.on('check-room', function (roomID) {
+        if (roomData.hasOwnProperty(roomID)) {
+            socket.emit('check-room-response', true);
+        } else {
+            socket.emit('check-room-response', false);
+        }
+    });
+
+    socket.on('create-room', function (roomID) {
+        roomData[roomID] = {
+            'size': 0
+        };
+    });
+
+    socket.on('join-room', function (roomID) {
+        socket.join(roomID);
+    });
+
     socket.on('add-userData', function (sessionID, data) {
-        socket.broadcast.emit('transmit-userData', sessionID, data);
+        socket.broadcast.to(socket.rooms[0]).emit('transmit-userData', sessionID, data);
     });
 
     socket.on('add-canvasData', function (sessionID, data) {
         canvasData.size += 1;
         Array.prototype.push.apply(canvasData[sessionID], data);
-        socket.broadcast.emit('transmit-canvasData', sessionID, data);
+        socket.broadcast.to(socket.rooms[0]).emit('transmit-canvasData', sessionID, data);
     });
 
     socket.on('clear', function () {
@@ -38,16 +54,16 @@ io.on('connection', function (socket) {
                 canvasData[key] = [];
             }
         }
-        socket.broadcast.emit('clear');
+        socket.broadcast.to(socket.rooms[0]).emit('clear');
     });
 
     socket.on('new-user', function (sessionID, username) {
-        socket.broadcast.emit('add-user', sessionID);
+        socket.broadcast.to(socket.rooms[0]).emit('add-user', sessionID);
         if (!canvasData.hasOwnProperty(sessionID)) {
             canvasData[sessionID] = [];
         }
         usernames[sessionID] = username;
-        socket.emit('init-canvasData', canvasData);
+        socket.to(socket.rooms[0]).emit('init-canvasData', canvasData);
     });
 
     socket.on('user-leave', function (sessionID, username) {
@@ -56,7 +72,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('chat-message', function (msg) {
-        socket.broadcast.emit('chat-message', msg);
+        socket.broadcast.to(socket.rooms[0]).emit('chat-message', msg);
     });
 });
 
