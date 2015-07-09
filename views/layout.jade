@@ -2,7 +2,6 @@ doctype html
 html
     head
         title= title
-        link(rel='stylesheet', href='/stylesheets/style.css')
         link(rel='stylesheet', href='//fonts.googleapis.com/css?family=Lato:400')
         script(src='//code.jquery.com/jquery-2.1.4.min.js')
         script(src='/socket.io/socket.io.js')
@@ -13,6 +12,7 @@ html
         script(src='/javascripts/spectrum.js')
         link(rel='stylesheet', href='/stylesheets/bootstrap-slider.css')
         script(src='/javascripts/bootstrap-slider.js')
-        block script
+        block scripts
+        block styles
     body
         block content

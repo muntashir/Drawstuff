@@ -18,16 +18,31 @@ var canvasData = {};
 var dataBuffer = [];
 var bufferLength = 3;
 
-//var sessionID passed in from Jade
+//var sessionID, roomID passed in from Jade
+
+function joinRoom(id) {
+    socket.emit('check-room', roomID);
+
+    socket.on('check-room-response', function (response) {
+        if (response) {
+            socket.emit('join-room', roomID, sessionID);
+            initCanvas();
+            initPreCanvas(canvas);
+            initChat();
+            //Start drawLoop
+            window.requestAnimationFrame(drawLoop);
+        } else {
+            bootbox.alert("Room does not exist", function () {
+                window.location = "/";
+            });
+        }
+    });
+}
 
 $(document).ready(function () {
     socket = io();
-    initChat();
-    initCanvas();
-    initPreCanvas(canvas);
-
-    leftBorder = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10) || 0;
-    topBorder = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10) || 0;
+    initControls();
+    joinRoom(roomID);
 
     $('#clear').on('click', function () {
         clearCanvas()
@@ -56,9 +71,6 @@ $(document).ready(function () {
     socket.on('transmit-userData', function (id, data) {
         userPositionsObject[id] = data;
     });
-
-    //Start drawLoop
-    window.requestAnimationFrame(drawLoop);
 });
 
 function clearCanvas() {
@@ -125,6 +137,9 @@ function initCanvas() {
     canvas.width = 800;
     ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    leftBorder = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10) || 0;
+    topBorder = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10) || 0;
+
 
     $('#canvas').on('mousedown touchstart', function (e) {
         e.preventDefault();
@@ -188,7 +203,9 @@ function initCanvas() {
             }
         }
     });
+}
 
+function initControls() {
     $("#color-picker").spectrum({
         color: "#000",
         showButtons: false,

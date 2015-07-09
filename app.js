@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var stylus = require('stylus');
 
 //Init routers
-var routes = require('./routes/index');
+var routes = require('./routes/router');
 
 //Init express
 var express = require('express');
