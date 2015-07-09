@@ -32,7 +32,7 @@ function drawPaths(ctx) {
         ctx.lineWidth = paths[pathIndex].thickness;
 
         ctx.beginPath();
-        ctx.arc(paths[pathIndex].x[0], paths[pathIndex].y[0], paths[pathIndex].thickness / 2, 0, 2 * Math.PI);
+        ctx.arc(paths[pathIndex].startX, paths[pathIndex].startY, paths[pathIndex].thickness / 2, 0, 2 * Math.PI);
         ctx.fill();
 
         ctx.beginPath();
@@ -75,12 +75,12 @@ function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
                     } else if (dataElement[i].type === 'path-point') {
                         path.x.push(dataElement[i].x);
                         path.y.push(dataElement[i].y);
-                        if (i === len - 1 || dataElement[i + 1].type !== 'path-point') {
-                            insertPath(path);
-                            path = {};
-                            path.x = [];
-                            path.y = [];
-                        }
+                    }
+                    if (i === len - 1 || dataElement[i + 1].type !== 'path-point') {
+                        insertPath(path);
+                        path = {};
+                        path.x = [];
+                        path.y = [];
                     }
                 }
             }
