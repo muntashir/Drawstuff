@@ -52,7 +52,8 @@ function drawPaths(ctx) {
 }
 
 function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     //Only update paths if new data is available or update is being forced
     if (canvasData.size >= oldDataSize || forceUpdate) {
@@ -61,7 +62,8 @@ function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
         path.x = [];
         path.y = [];
 
-        preCtx.clearRect(0, 0, canvas.width, canvas.height);
+        preCtx.fillStyle = 'white';
+        preCtx.fillRect(0, 0, canvas.width, canvas.height);
         for (var key in canvasData) {
             if (canvasData.hasOwnProperty(key)) {
                 var dataElement = canvasData[key];
