@@ -9,7 +9,10 @@ block scripts
     script(src='/javascripts/lobby.js')
 
 block content
-    h1 #{title}
+    nav.navbar.navbar-default.navbar-fixed-top
+        .container-fluid
+            .navbar-header
+                a.navbar-brand(href="/") #{title}
     #window
         .well(id='chat-window')
             form.form-group(action='' id='create-room-form')

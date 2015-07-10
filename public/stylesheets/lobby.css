@@ -5,3 +5,6 @@
 .button {
   width: 10em;
 }
+body {
+  padding-top: 50px;
+}

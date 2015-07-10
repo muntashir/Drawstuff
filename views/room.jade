@@ -11,8 +11,11 @@ block scripts
     script(src='/javascripts/canvas.js')
 
 block content
-    a(href='/')
-        h1 #{title}
+    nav.navbar.navbar-default.navbar-fixed-top
+        .container-fluid
+            .navbar-header
+                a.navbar-brand(href="/") #{title}
+                p.navbar-text #{roomID}
     #draw
         canvas#canvas
         #tools
@@ -20,7 +23,7 @@ block content
             input#color-picker
             input#thickness
     #chat
-        .well(id='chat-window')
+        .panel.panel-primary(id='chat-window')
             ul.list-group(id='chat-messages')
         form.form-group(action='' id='chat-form')
             .input-group
