@@ -5,6 +5,7 @@ var router = express.Router();
 router.get('/', function (req, res, next) {
     res.render('lobby', {
         title: 'Drawstuff',
+        description: 'Realtime collaboration tool',
         sessionID: req.sessionID
     });
 });
@@ -12,6 +13,7 @@ router.get('/', function (req, res, next) {
 router.get('/rooms/:id', function (req, res) {
     res.render('room', {
         title: 'Drawstuff',
+        description: 'Realtime collaboration tool',
         sessionID: req.sessionID,
         roomID: req.params.id
     });
