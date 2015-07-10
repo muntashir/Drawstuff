@@ -45,18 +45,18 @@ io.on('connection', function (socket) {
     });
 
     socket.on('add-canvasData', function (sessionID, data) {
-        roomData[socket.rooms[1]].size += data.length;
+        roomData[socket.rooms[1]].size += parseInt(data.length);
         Array.prototype.push.apply(roomData[socket.rooms[1]][sessionID], data);
         socket.broadcast.to(socket.rooms[1]).emit('transmit-canvasData', sessionID, data);
     });
 
     socket.on('clear', function () {
-        roomData[socket.rooms[1]].size = 0;
         for (var key in roomData[socket.rooms[1]]) {
             if (roomData[socket.rooms[1]].hasOwnProperty(key)) {
                 roomData[socket.rooms[1]][key] = [];
             }
         }
+        roomData[socket.rooms[1]].size = parseInt(0);
         socket.broadcast.to(socket.rooms[1]).emit('clear');
     });
 

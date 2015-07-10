@@ -64,7 +64,7 @@ $(document).ready(function () {
     });
 
     socket.on('transmit-canvasData', function (id, data) {
-        canvasData.size += data.length;
+        canvasData.size += parseInt(data.length);
         Array.prototype.push.apply(canvasData[id], data);
     });
 
@@ -74,13 +74,14 @@ $(document).ready(function () {
 });
 
 function clearCanvas() {
-    canvasData.size = 0;
     canvasDraw(canvas, ctx, canvasData, userPositionsObject, true);
     for (var key in canvasData) {
         if (canvasData.hasOwnProperty(key)) {
             canvasData[key] = [];
         }
     }
+    canvasData.size = parseInt(0);
+    oldDataSize = parseInt(0);
 }
 
 function drawLoop() {
@@ -128,7 +129,7 @@ function initChat() {
 function flushBuffer() {
     socket.emit('add-canvasData', sessionID, dataBuffer);
     Array.prototype.push.apply(canvasData[sessionID], dataBuffer);
-    canvasData.size += dataBuffer.length;
+    canvasData.size += parseInt(dataBuffer.length);
     dataBuffer = [];
 }
 
