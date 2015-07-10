@@ -1,12 +1,12 @@
 extends layout
 
 block styles
-    link(rel='stylesheet', href='/stylesheets/roomSelect.css')
+    link(rel='stylesheet', href='/stylesheets/lobby.css')
 
 block scripts
     script.
         sessionID="#{sessionID}";
-    script(src='/javascripts/roomSelect.js')
+    script(src='/javascripts/lobby.js')
 
 block content
     h1 #{title}
