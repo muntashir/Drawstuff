@@ -85,7 +85,7 @@ function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
                 }
             }
         }
-        oldDataSize = canvasData['size'];
+        oldDataSize = canvasData.size;
         drawPaths(preCtx);
     }
 

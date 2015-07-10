@@ -64,7 +64,7 @@ $(document).ready(function () {
     });
 
     socket.on('transmit-canvasData', function (id, data) {
-        canvasData.size += 1;
+        canvasData.size += data.length;
         Array.prototype.push.apply(canvasData[id], data);
     });
 
@@ -128,6 +128,7 @@ function initChat() {
 function flushBuffer() {
     socket.emit('add-canvasData', sessionID, dataBuffer);
     Array.prototype.push.apply(canvasData[sessionID], dataBuffer);
+    canvasData.size += dataBuffer.length;
     dataBuffer = [];
 }
 

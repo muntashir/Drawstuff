@@ -45,7 +45,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('add-canvasData', function (sessionID, data) {
-        roomData[socket.rooms[1]].size += 1;
+        roomData[socket.rooms[1]].size += data.length;
         Array.prototype.push.apply(roomData[socket.rooms[1]][sessionID], data);
         socket.broadcast.to(socket.rooms[1]).emit('transmit-canvasData', sessionID, data);
     });
