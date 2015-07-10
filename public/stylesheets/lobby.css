@@ -1,7 +1,10 @@
 #window {
-  width: 60%;
+  width: 40%;
   margin: auto;
 }
 .button {
   width: 10em;
+}
+body {
+  padding-top: 50px;
 }
