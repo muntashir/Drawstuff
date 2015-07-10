@@ -45,12 +45,16 @@ $(document).ready(function () {
     joinRoom(roomID);
 
     $('#clear').on('click', function () {
-        clearCanvas()
-        socket.emit('clear');
+        bootbox.confirm("Are you sure you want to clear everything?", function (result) {
+            if (result) {
+                clearCanvas();
+                socket.emit('clear');
+            }
+        });
     });
 
     socket.on('clear', function () {
-        clearCanvas()
+        clearCanvas();
     });
 
     socket.on('add-user', function (id, username) {
