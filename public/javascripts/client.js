@@ -1,7 +1,7 @@
 var canvas;
 var ctx;
-var leftBorder;
-var topBorder;
+var canvasOffsetX;
+var canvasOffsetY;
 
 var socket;
 var username;
@@ -26,7 +26,6 @@ function joinRoom(id) {
     socket.on('check-room-response', function (response) {
         if (response) {
             socket.emit('join-room', roomID, sessionID);
-            initCanvas();
             initPreCanvas(canvas);
             initChat();
             //Start drawLoop
@@ -42,6 +41,7 @@ function joinRoom(id) {
 $(document).ready(function () {
     socket = io();
     initControls();
+    initCanvas();
     joinRoom(roomID);
 
     $('#clear').on('click', function () {
@@ -143,15 +143,15 @@ function initCanvas() {
     canvas.width = 800;
     ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    leftBorder = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10) || 0;
-    topBorder = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10) || 0;
 
+    canvasOffsetX = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10) + parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10) + document.body.parentNode.offsetLeft;
+    canvasOffsetY = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10) + parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10) + document.body.parentNode.offsetTop;
 
     $('#canvas').on('mousedown touchstart', function (e) {
         e.preventDefault();
         if (!mouseDown) {
             mouseDown = true;
-            mousePos = getMousePos(canvas, e.originalEvent, leftBorder, topBorder);
+            mousePos = getMousePos(canvas, e.originalEvent, canvasOffsetX, canvasOffsetY);
             var point = {};
             point.type = 'path-start';
             point.time = new Date().getTime();
@@ -183,7 +183,7 @@ function initCanvas() {
     $('#canvas').on('mousemove touchmove', function (e) {
         e.preventDefault();
         if (username) {
-            var userPos = getMousePos(canvas, e.originalEvent, leftBorder, topBorder);
+            var userPos = getMousePos(canvas, e.originalEvent, canvasOffsetX, canvasOffsetY);
             var user = {};
             user.username = username;
             user.centerX = userPos.x;
@@ -200,7 +200,7 @@ function initCanvas() {
         if (mouseDown) {
             var point = {};
             point.type = 'path-point';
-            mousePos = getMousePos(canvas, e.originalEvent, leftBorder, topBorder);
+            mousePos = getMousePos(canvas, e.originalEvent, canvasOffsetX, canvasOffsetY);
             point.x = mousePos.x;
             point.y = mousePos.y;
             dataBuffer.push(point);

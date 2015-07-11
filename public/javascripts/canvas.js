@@ -108,18 +108,18 @@ function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
     }
 }
 
-function getMousePos(canvas, e, leftBorder, topBorder) {
+function getMousePos(canvas, e, canvasOffsetX, canvasOffsetY) {
     var rect = canvas.getBoundingClientRect();
     if (e.clientX) {
         return {
-            x: e.clientX - rect.left - leftBorder,
-            y: e.clientY - rect.top - topBorder
+            x: e.clientX - rect.left - canvasOffsetX,
+            y: e.clientY - rect.top - canvasOffsetY
         };
     }
     if (e.changedTouches) {
         return {
-            x: e.changedTouches[0].pageX - rect.left - leftBorder,
-            y: e.changedTouches[0].pageY - rect.top - topBorder
+            x: e.changedTouches[0].pageX - rect.left - canvasOffsetX,
+            y: e.changedTouches[0].pageY - rect.top - canvasOffsetY
         };
     };
     return mousePos;
