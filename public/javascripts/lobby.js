@@ -6,18 +6,22 @@ $(document).ready(function () {
 
     $('#create-room-form').submit(function () {
         action = 'create';
-        if ($('#create-room-text').val()) {
+        if (checkRoomID($('#create-room-text').val())) {
             roomID = $('#create-room-text').val();
             socket.emit('check-room', roomID);
+        } else {
+            bootbox.alert("Room ID must be alphanumeric");
         }
         return false;
     });
 
     $('#join-room-form').submit(function () {
         action = 'join';
-        if ($('#join-room-text').val()) {
+        if (checkRoomID($('#join-room-text').val())) {
             roomID = $('#join-room-text').val();
             socket.emit('check-room', roomID);
+        } else {
+            bootbox.alert("Room ID must be alphanumeric");
         }
         return false;
     });
@@ -40,3 +44,12 @@ $(document).ready(function () {
         }
     });
 });
+
+function checkRoomID(id) {
+    var exp = /^[a-z0-9]+$/i;
+
+    if (!id.match(exp))
+        return false;
+    else
+        return true;
+}
