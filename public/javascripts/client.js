@@ -59,7 +59,7 @@ $(document).ready(function () {
         updateWindowTitle();
     });
 
-    $('#clear').on('click', function () {
+    $('#clear').on('click touchend', function () {
         bootbox.confirm("Are you sure you want to clear everything?", function (result) {
             if (result) {
                 clearCanvas();
