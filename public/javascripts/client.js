@@ -117,6 +117,7 @@ function initChat() {
         if ($('#chat-input').val()) {
             socket.emit('chat-message', username + ": " + $('#chat-input').val());
             $('#chat-messages').append($('<li>').text("You: " + $('#chat-input').val()).addClass('list-group-item active'));
+            scrollChat();
             $('#chat-input').val('');
         }
         return false;
@@ -124,9 +125,7 @@ function initChat() {
 
     socket.on('chat-message', function (msg) {
         $('#chat-messages').append($('<li>').text(msg).addClass('list-group-item'));
-        $("#chat-window").animate({
-            scrollTop: $("#chat-window")[0].scrollHeight
-        }, 1000);
+        scrollChat();
     });
 }
 
@@ -256,5 +255,12 @@ function getUserName() {
 function addUser() {
     socket.emit('chat-message', username + " has joined");
     $('#chat-messages').append($('<li>').text(username + " has joined").addClass('list-group-item active'));
+    scrollChat();
     socket.emit('new-user', sessionID, username);
+}
+
+function scrollChat() {
+    $("#chat-window").stop().animate({
+        scrollTop: $("#chat-window")[0].scrollHeight
+    }, 1000);
 }
