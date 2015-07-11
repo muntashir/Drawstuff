@@ -54,7 +54,7 @@ $(document).ready(function () {
     initCanvas();
     joinRoom(roomID);
 
-    $('#chat-input').on('click', function () {
+    $('#chat-input').on('click keydown', function () {
         unreadCount = 0;
         updateWindowTitle();
     });
