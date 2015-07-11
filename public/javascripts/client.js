@@ -131,15 +131,14 @@ function initChat() {
     $('form').submit(function () {
         if ($('#chat-input').val()) {
             socket.emit('chat-message', username + ": " + $('#chat-input').val());
-            $('#chat-messages').append($('<li>').text("You: " + $('#chat-input').val()).addClass('list-group-item active'));
-            scrollChat();
+            printToChat("You: " + $('#chat-input').val(), true);
             $('#chat-input').val('');
         }
         return false;
     });
 
     socket.on('chat-message', function (msg) {
-        $('#chat-messages').append($('<li>').text(msg).addClass('list-group-item'));
+        printToChat(msg, false);
         unreadCount += 1;
         updateWindowTitle();
         scrollChat();
@@ -271,8 +270,7 @@ function getUserName() {
 
 function addUser() {
     socket.emit('chat-message', username + " has joined");
-    $('#chat-messages').append($('<li>').text(username + " has joined").addClass('list-group-item active'));
-    scrollChat();
+    printToChat(username + " has joined", true);
     socket.emit('new-user', sessionID, username);
 }
 
@@ -280,4 +278,21 @@ function scrollChat() {
     $("#chat-window").stop().animate({
         scrollTop: $("#chat-window")[0].scrollHeight
     }, 1000);
+}
+
+function printToChat(text, active) {
+    var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    text = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(exp, "<a href='$1' target='_blank'>$1</a>");
+    if (active) {
+        $('#chat-messages').append('<li class="list-group-item active">' + text + '</li>');
+    } else {
+        $('#chat-messages').append('<li class="list-group-item">' + text + '</li>');
+    }
+    scrollChat();
 }
