@@ -118,8 +118,8 @@ function getMousePos(canvas, e, canvasOffsetX, canvasOffsetY) {
     }
     if (e.changedTouches) {
         return {
-            x: e.changedTouches[0].pageX - rect.left - canvasOffsetX,
-            y: e.changedTouches[0].pageY - rect.top - canvasOffsetY
+            x: e.changedTouches[0].pageX - rect.left,
+            y: e.changedTouches[0].pageY - rect.top
         };
     };
     return mousePos;
