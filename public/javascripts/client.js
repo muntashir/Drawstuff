@@ -18,7 +18,17 @@ var canvasData = {};
 var dataBuffer = [];
 var bufferLength = 3;
 
+var unreadCount = 0;
+
 //var sessionID, roomID passed in from Jade
+
+function updateWindowTitle() {
+    if (unreadCount) {
+        window.document.title = "Drawstuff (" + unreadCount + ")";
+    } else {
+        window.document.title = "Drawstuff";
+    }
+}
 
 function joinRoom(id) {
     socket.emit('check-room', roomID);
@@ -43,6 +53,11 @@ $(document).ready(function () {
     initControls();
     initCanvas();
     joinRoom(roomID);
+
+    $('#chat-input').on('click', function () {
+        unreadCount = 0;
+        updateWindowTitle();
+    });
 
     $('#clear').on('click', function () {
         bootbox.confirm("Are you sure you want to clear everything?", function (result) {
@@ -125,6 +140,8 @@ function initChat() {
 
     socket.on('chat-message', function (msg) {
         $('#chat-messages').append($('<li>').text(msg).addClass('list-group-item'));
+        unreadCount += 1;
+        updateWindowTitle();
         scrollChat();
     });
 }
