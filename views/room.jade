@@ -16,18 +16,17 @@ block content
             .navbar-header
                 a.navbar-brand(href="/") #{title}
                 p.navbar-text #{roomID}
-    .row
-        #draw.col-md-6
-            canvas#canvas
-            #tools
-                button.btn.btn-primary(id='clear') Clear
-                input#color-picker
-                input#thickness
-        #chat.col-md-4
-            .panel.panel-primary(id='chat-window')
-                ul.list-group(id='chat-messages')
-            form.form-group(action='' id='chat-form')
-                .input-group
-                    input.form-control(type='text' id='chat-input')
-                    span.input-group-btn
-                        button.btn.btn-primary(id='chat-send') Send
+    canvas#canvas
+    #draw
+        #tools
+            button.btn.btn-primary(id='clear') Clear
+            input#color-picker
+            input#thickness
+    #chat
+        .panel.panel-primary(id='chat-window')
+            ul.list-group(id='chat-messages')
+        form.form-group(action='' id='chat-form')
+            .input-group
+                input.form-control(type='text' id='chat-input')
+                span.input-group-btn
+                    button.btn.btn-primary(id='chat-send') Send

@@ -71,12 +71,12 @@ function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
                     if (dataElement[i].type === 'path-start') {
                         path.time = dataElement[i].time;
                         path.color = dataElement[i].color;
-                        path.startX = dataElement[i].x;
-                        path.startY = dataElement[i].y;
+                        path.startX = dataElement[i].x * canvas.width;
+                        path.startY = dataElement[i].y * canvas.height;
                         path.thickness = dataElement[i].thickness;
                     } else if (dataElement[i].type === 'path-point') {
-                        path.x.push(dataElement[i].x);
-                        path.y.push(dataElement[i].y);
+                        path.x.push(dataElement[i].x * canvas.width);
+                        path.y.push(dataElement[i].y * canvas.height);
                     }
                     if (i === len - 1 || dataElement[i + 1].type !== 'path-point') {
                         insertPath(path);
@@ -102,9 +102,9 @@ function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
     for (var i = 0, len = userData.length; i < len; i += 1) {
         ctx.fillStyle = userData[i].color;
         ctx.beginPath();
-        ctx.arc(userData[i].centerX, userData[i].centerY, userData[i].thickness / 2, 0, 2 * Math.PI);
+        ctx.arc(userData[i].centerX * canvas.width, userData[i].centerY * canvas.height, userData[i].thickness / 2, 0, 2 * Math.PI);
         ctx.fill();
-        ctx.fillText(userData[i].username, userData[i].centerX, userData[i].centerY - 9);
+        ctx.fillText(userData[i].username, userData[i].centerX * canvas.width, (userData[i].centerY * canvas.height) - 10);
     }
 }
 
@@ -112,14 +112,14 @@ function getMousePos(canvas, e, canvasOffsetX, canvasOffsetY) {
     var rect = canvas.getBoundingClientRect();
     if (e.clientX) {
         return {
-            x: e.clientX - rect.left - canvasOffsetX,
-            y: e.clientY - rect.top - canvasOffsetY
+            x: (e.clientX - rect.left - canvasOffsetX) / canvas.width,
+            y: (e.clientY - rect.top - canvasOffsetY) / canvas.height
         };
     }
     if (e.changedTouches) {
         return {
-            x: e.changedTouches[0].pageX - rect.left,
-            y: e.changedTouches[0].pageY - rect.top
+            x: (e.changedTouches[0].pageX - rect.left) / canvas.width,
+            y: (e.changedTouches[0].pageY - rect.top) / canvas.height
         };
     };
     return mousePos;

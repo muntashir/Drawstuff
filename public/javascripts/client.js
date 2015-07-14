@@ -154,8 +154,8 @@ function flushBuffer() {
 
 function initCanvas() {
     canvas = document.getElementById("canvas");
-    canvas.height = 500;
-    canvas.width = 800;
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
     ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
