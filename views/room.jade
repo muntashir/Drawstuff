@@ -11,15 +11,15 @@ block scripts
     script(src='/javascripts/canvas.js')
 
 block content
-    nav.navbar.navbar-default.navbar-fixed-top
+    nav#nav.navbar.navbar-inverse.navbar-fixed-top
         .container-fluid
             .navbar-header
                 a.navbar-brand(href="/") #{title}
                 p.navbar-text #{roomID}
     canvas#canvas
     #draw
-        #tools
-            button.btn.btn-primary(id='clear') Clear
+        #tools.well
+            button.btn.btn-success(id='clear') Clear
             input#color-picker
             input#thickness
     #chat
@@ -29,4 +29,4 @@ block content
             .input-group
                 input.form-control(type='text' id='chat-input')
                 span.input-group-btn
-                    button.btn.btn-primary(id='chat-send') Send
+                    button.btn.btn-success(id='chat-send') Send

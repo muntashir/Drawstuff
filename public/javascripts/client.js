@@ -195,7 +195,7 @@ function initCanvas() {
         }
     });
 
-    $('#canvas').on('mousemove touchmove', function (e) {
+    $(window).on('mousemove touchmove', function (e) {
         e.preventDefault();
         if (username) {
             var userPos = getMousePos(canvas, e.originalEvent, canvasOffsetX, canvasOffsetY);

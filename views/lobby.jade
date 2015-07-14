@@ -9,7 +9,7 @@ block scripts
     script(src='/javascripts/lobby.js')
 
 block content
-    nav.navbar.navbar-default.navbar-fixed-top
+    nav.navbar.navbar-inverse.navbar-fixed-top
         .container-fluid
             .navbar-header
                 a.navbar-brand(href="/") #{title}
@@ -19,9 +19,9 @@ block content
                 .input-group
                     input.form-control(type='text' id='create-room-text' placeholder='Room ID')
                     span.input-group-btn
-                        button.btn.btn-primary.button Create room
+                        button.btn.btn-success.button Create room
             form.form-group(action='' id='join-room-form')
                 .input-group
                     input.form-control(type='text' id='join-room-text' placeholder='Room ID')
                     span.input-group-btn
-                        button.btn.btn-primary.button Join room
+                        button.btn.btn-success.button Join room
