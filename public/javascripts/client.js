@@ -173,7 +173,7 @@ function initCanvas() {
             point.x = mousePos.x;
             point.y = mousePos.y;
             point.color = canvasColor;
-            point.thickness = thickness;
+            point.thickness = Math.min(thickness, 15);
             dataBuffer.push(point);
             flushBuffer();
         }
@@ -204,7 +204,7 @@ function initCanvas() {
             user.centerX = userPos.x;
             user.centerY = userPos.y;
             user.color = canvasColor;
-            user.thickness = thickness;
+            user.thickness = Math.min(thickness, 15);
             userPositionsObject[sessionID] = user;
             socket.emit('add-userData', sessionID, user);
         }
