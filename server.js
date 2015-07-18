@@ -1,7 +1,6 @@
 var app = require('./app');
-
-var usernames = {};
-var roomData = {};
+var redis = require('redis'),
+    db = redis.createClient();
 
 //Init HTTP server
 var port = process.env.PORT || 80;
@@ -9,35 +8,72 @@ var http = require('http');
 var server = http.createServer(app);
 var io = require('socket.io')(server);
 
+function getRoomData(roomID, callback) {
+    var data = {};
+    var totalUsers = 0;
+    var processedUsers = 0;
+
+    db.get(roomID + ":size", function (err, reply) {
+        data.size = parseInt(reply);
+
+        db.smembers(roomID + ":users", function (err, reply) {
+            totalUsers = reply.length;
+
+            for (var i = 0; i < totalUsers; i += 1) {
+
+                db.lrange(roomID + ":" + reply[i], 0, -1, function (err, d) {
+                    var id = d[0];
+                    data[id] = [];
+
+                    for (var j = 1; j < d.length; j += 1) {
+                        data[id].push(JSON.parse(d[j]));
+                    }
+
+                    processedUsers++;
+
+                    if (totalUsers === processedUsers) {
+                        callback(data);
+                    }
+                });
+            }
+        });
+    });
+}
+
+db.on('connect', function () {
+    console.log('Connected to Redis');
+});
+
 //Init socket
 io.on('connection', function (socket) {
     socket.on('get-username', function (sessionID) {
-        if (usernames.hasOwnProperty(sessionID)) {
-            socket.emit('send-username', usernames[sessionID]);
-        } else {
-            socket.emit('send-username', null);
-        }
+        db.hget("usernames", sessionID, function (err, reply) {
+            if (reply) {
+                socket.emit('send-username', reply);
+            } else {
+                socket.emit('send-username', null);
+            }
+        });
     });
 
     socket.on('check-room', function (roomID) {
-        if (roomData.hasOwnProperty(roomID)) {
-            socket.emit('check-room-response', true);
-        } else {
-            socket.emit('check-room-response', false);
-        }
+        db.sismember("rooms", roomID, function (err, reply) {
+            if (reply) {
+                socket.emit('check-room-response', true);
+            } else {
+                socket.emit('check-room-response', false);
+            }
+        });
     });
 
     socket.on('create-room', function (roomID) {
-        roomData[roomID] = {
-            'size': 0
-        };
+        db.sadd("rooms", roomID);
+        db.set(roomID + ":size", 0);
     });
 
     socket.on('join-room', function (roomID, sessionID) {
         socket.join(roomID);
-        if (!roomData[roomID].hasOwnProperty(sessionID)) {
-            (roomData[roomID])[sessionID] = [];
-        }
+        db.sadd(roomID + ":users", sessionID);
     });
 
     socket.on('add-userData', function (sessionID, data) {
@@ -45,32 +81,41 @@ io.on('connection', function (socket) {
     });
 
     socket.on('add-canvasData', function (sessionID, data) {
-        roomData[socket.rooms[1]].size += parseInt(data.length);
-        Array.prototype.push.apply(roomData[socket.rooms[1]][sessionID], data);
-        socket.broadcast.to(socket.rooms[1]).emit('transmit-canvasData', sessionID, data);
+        var roomID = socket.rooms[1];
+        socket.broadcast.to(roomID).emit('transmit-canvasData', sessionID, data);
+        for (var i = 0; i < data.length; i += 1) {
+            db.incr(roomID + ":size");
+            db.rpush(roomID + ":" + sessionID, JSON.stringify(data[i]));
+        }
     });
 
     socket.on('clear', function () {
-        for (var key in roomData[socket.rooms[1]]) {
-            if (roomData[socket.rooms[1]].hasOwnProperty(key)) {
-                roomData[socket.rooms[1]][key] = [];
+        var roomID = socket.rooms[1];
+        socket.broadcast.to(roomID).emit('clear');
+        db.set(roomID + ":size", 0);
+        db.smembers(roomID + ":users", function (err, reply) {
+            for (var i = 0; i < reply.length; i += 1) {
+                db.ltrim(roomID + ":" + reply[i], 0, 0);
             }
-        }
-        roomData[socket.rooms[1]].size = parseInt(0);
-        socket.broadcast.to(socket.rooms[1]).emit('clear');
+        });
     });
 
     socket.on('new-user', function (sessionID, username) {
-        socket.broadcast.to(socket.rooms[1]).emit('add-user', sessionID);
-        if (!roomData[socket.rooms[1]].hasOwnProperty(sessionID)) {
-            (roomData[socket.rooms[1]])[sessionID] = [];
-        }
-        usernames[sessionID] = username;
-        socket.emit('init-canvasData', roomData[socket.rooms[1]]);
+        var roomID = socket.rooms[1];
+        socket.broadcast.to(roomID).emit('add-user', sessionID);
+        db.hset("usernames", sessionID, username);
+        db.llen(roomID + ":" + sessionID, function (err, reply) {
+            if (!reply) {
+                db.rpush(roomID + ":" + sessionID, sessionID);
+            }
+            getRoomData(roomID, function (data) {
+                socket.emit('init-canvasData', data);
+            });
+        });
     });
 
     socket.on('user-leave', function (sessionID, username) {
-        var data = {}
+        var data = {};
         io.emit('transmit-userData', sessionID, data);
     });
 
