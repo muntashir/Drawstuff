@@ -6,6 +6,7 @@ var favicon = require('serve-favicon');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 var stylus = require('stylus');
+var minify = require('express-minify');
 
 //Init routers
 var routes = require('./routes/router');
@@ -35,6 +36,7 @@ app.use(stylus.middleware({
     src: __dirname + '/views',
     dest: __dirname + '/public'
 }));
+app.use(minify());
 app.use(express.static(path.join(__dirname, 'public')));
 
 //Route request
