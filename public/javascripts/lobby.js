@@ -4,6 +4,19 @@ var roomID;
 $(document).ready(function () {
     socket = io();
 
+    $("#random").click(function () {
+        socket.emit('request-chat', sessionID);
+        $('#random').prop('disabled', true);
+        $("#random").html('Looking for a match...');
+    });
+
+    socket.on('request-chat-response', function (response) {
+        console.log(response);
+        if (response[0] === sessionID || response[1] === sessionID) {
+            window.location = "/rooms/" + response[0];
+        }
+    });
+
     $('#create-room-form').submit(function () {
         action = 'create';
         if (checkRoomID($('#create-room-text').val())) {
@@ -42,6 +55,11 @@ $(document).ready(function () {
                 bootbox.alert("Room does not exist", function () {});
             }
         }
+    });
+
+    $(window).on('beforeunload', function () {
+        socket.emit('del-request', sessionID);
+        socket.close();
     });
 });
 

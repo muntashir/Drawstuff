@@ -54,8 +54,36 @@ db.on('connect', function () {
     console.log('Connected to Redis');
 });
 
+function matchmake() {
+    var match = [];
+    db.smembers("requests", function (err, requests) {
+        for (var i = 0; i < requests.length; i += 1) {
+            if (match.length < 2) {
+                match.push(requests[i]);
+            }
+            if (match.length === 2) {
+                db.sadd("rooms", match[0]);
+                db.set(match[0] + ":size", 0);
+                db.srem("requests", match[0]);
+                db.srem("requests", match[1]);
+                io.emit('request-chat-response', match);
+                match = [];
+            }
+        }
+    });
+}
+
 //Init socket
 io.on('connection', function (socket) {
+    socket.on('request-chat', function (request) {
+        db.sadd("requests", request);
+        matchmake();
+    });
+
+    socket.on('del-request', function (request) {
+        db.srem("requests", request);
+    });
+
     socket.on('get-username', function (sessionID) {
         db.hget("usernames", sessionID, function (err, reply) {
             if (reply) {
