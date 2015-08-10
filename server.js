@@ -125,7 +125,8 @@ io.on('connection', function (socket) {
     });
 
     socket.on('add-userData', function (sessionID, data) {
-        socket.broadcast.to(socket.rooms[1]).emit('transmit-userData', sessionID, data);
+        var roomID = socket.rooms[1];
+        socket.broadcast.to(roomID).emit('transmit-userData', sessionID, data);
     });
 
     socket.on('add-canvasData', function (sessionID, data) {
@@ -150,7 +151,7 @@ io.on('connection', function (socket) {
 
     socket.on('new-user', function (sessionID, username) {
         var roomID = socket.rooms[1];
-        socket.broadcast.to(socket.rooms[1]).emit('chat-message', username + " has joined");
+        socket.broadcast.to(roomID).emit('chat-message', username + " has joined");
         socket.broadcast.to(roomID).emit('add-user', sessionID);
         db.hset("usernames", sessionID, username);
         db.rpush(roomID + ":usernames", username);
@@ -184,11 +185,13 @@ io.on('connection', function (socket) {
         db.lrem(roomID + ":usernames", 0, username);
         var data = {};
         io.emit('transmit-userData', sessionID, data);
-        socket.broadcast.to(socket.rooms[1]).emit('chat-message', username + " has left");
+        socket.broadcast.to(roomID).emit('stop-typing', username);
+        socket.broadcast.to(roomID).emit('chat-message', username + " has left");
     });
 
     socket.on('chat-message', function (msg) {
-        socket.broadcast.to(socket.rooms[1]).emit('chat-message', msg);
+        var roomID = socket.rooms[1];
+        socket.broadcast.to(roomID).emit('chat-message', msg);
     });
 });
 
