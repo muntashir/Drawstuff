@@ -124,7 +124,7 @@ function displayUsersTyping() {
 }
 
 function initChat() {
-    socket.emit('get-username', sessionID);
+    socket.emit('get-username');
 
     socket.on('send-username', function (u) {
         if (u) {
@@ -171,9 +171,6 @@ function initChat() {
     });
 
     $(window).on('beforeunload', function () {
-        if (username) {
-            socket.emit('user-leave', sessionID, username);
-        }
         socket.close();
     });
 
@@ -196,7 +193,7 @@ function initChat() {
 }
 
 function flushBuffer() {
-    socket.emit('add-canvasData', sessionID, dataBuffer);
+    socket.emit('add-canvasData', dataBuffer);
     Array.prototype.push.apply(canvasData[sessionID], dataBuffer);
     canvasData.size += parseInt(dataBuffer.length);
     dataBuffer = [];
@@ -241,7 +238,7 @@ function initCanvas() {
         if (username) {
             var user = {};
             userPositionsObject[sessionID] = user;
-            socket.emit('add-userData', sessionID, user);
+            socket.emit('add-userData', user);
         }
     });
 
@@ -256,7 +253,7 @@ function initCanvas() {
             user.color = canvasColor;
             user.thickness = Math.min(thickness, 15);
             userPositionsObject[sessionID] = user;
-            socket.emit('add-userData', sessionID, user);
+            socket.emit('add-userData', user);
         }
     });
 
@@ -320,7 +317,7 @@ function getUserName() {
 
 function addUser() {
     printToChat(username + " has joined", true);
-    socket.emit('new-user', sessionID, username);
+    socket.emit('new-user', username);
 }
 
 function scrollChat() {

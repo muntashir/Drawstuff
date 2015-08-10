@@ -94,7 +94,8 @@ io.on('connection', function (socket) {
         db.srem("requests", request);
     });
 
-    socket.on('get-username', function (sessionID) {
+    socket.on('get-username', function () {
+        var sessionID = socket.sessId;
         db.hget("usernames", sessionID, function (err, reply) {
             if (reply) {
                 socket.emit('send-username', reply);
@@ -120,16 +121,20 @@ io.on('connection', function (socket) {
     });
 
     socket.on('join-room', function (roomID, sessionID) {
+        socket.sessId = sessionID;
+        socket.roomId = roomID;
         socket.join(roomID);
         db.sadd(roomID + ":users", sessionID);
     });
 
-    socket.on('add-userData', function (sessionID, data) {
+    socket.on('add-userData', function (data) {
+        var sessionID = socket.sessId;
         var roomID = socket.rooms[1];
         socket.broadcast.to(roomID).emit('transmit-userData', sessionID, data);
     });
 
-    socket.on('add-canvasData', function (sessionID, data) {
+    socket.on('add-canvasData', function (data) {
+        var sessionID = socket.sessId;
         var roomID = socket.rooms[1];
         socket.broadcast.to(roomID).emit('transmit-canvasData', sessionID, data);
         for (var i = 0; i < data.length; i += 1) {
@@ -149,8 +154,10 @@ io.on('connection', function (socket) {
         });
     });
 
-    socket.on('new-user', function (sessionID, username) {
+    socket.on('new-user', function (username) {
+        var sessionID = socket.sessId;
         var roomID = socket.rooms[1];
+        socket.sessId = sessionID;
         socket.broadcast.to(roomID).emit('chat-message', username + " has joined");
         socket.broadcast.to(roomID).emit('add-user', sessionID);
         db.hset("usernames", sessionID, username);
@@ -180,13 +187,16 @@ io.on('connection', function (socket) {
         });
     });
 
-    socket.on('user-leave', function (sessionID, username) {
-        var roomID = socket.rooms[1];
-        db.lrem(roomID + ":usernames", 0, username);
-        var data = {};
-        io.emit('transmit-userData', sessionID, data);
-        socket.broadcast.to(roomID).emit('stop-typing', username);
-        socket.broadcast.to(roomID).emit('chat-message', username + " has left");
+    socket.on('disconnect', function () {
+        var sessionID = socket.sessId;
+        var roomID = socket.roomId;
+        db.hget("usernames", sessionID, function (err, username) {
+            db.lrem(roomID + ":usernames", 0, username);
+            var data = {};
+            io.to('transmit-userData', sessionID, data);
+            io.to(roomID).emit('stop-typing', username);
+            io.to(roomID).emit('chat-message', username + " has left");
+        });
     });
 
     socket.on('chat-message', function (msg) {
