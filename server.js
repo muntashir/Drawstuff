@@ -157,7 +157,6 @@ io.on('connection', function (socket) {
     socket.on('new-user', function (username) {
         var sessionID = socket.sessId;
         var roomID = socket.rooms[1];
-        socket.sessId = sessionID;
         socket.broadcast.to(roomID).emit('chat-message', username + " has joined");
         socket.broadcast.to(roomID).emit('add-user', sessionID);
         db.hset("usernames", sessionID, username);
@@ -190,12 +189,14 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function () {
         var sessionID = socket.sessId;
         var roomID = socket.roomId;
+        var data = {};
+        io.to('transmit-userData', sessionID, data);
         db.hget("usernames", sessionID, function (err, username) {
-            db.lrem(roomID + ":usernames", 0, username);
-            var data = {};
-            io.to('transmit-userData', sessionID, data);
-            io.to(roomID).emit('stop-typing', username);
-            io.to(roomID).emit('chat-message', username + " has left");
+            if (username) {
+                db.lrem(roomID + ":usernames", 0, username);
+                io.to(roomID).emit('stop-typing', username);
+                io.to(roomID).emit('chat-message', username + " has left");
+            }
         });
     });
 
