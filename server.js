@@ -80,6 +80,16 @@ io.on('connection', function (socket) {
         matchmake();
     });
 
+    socket.on('start-typing', function (username) {
+        var roomID = socket.rooms[1];
+        socket.broadcast.to(roomID).emit('start-typing', username);
+    });
+
+    socket.on('stop-typing', function (username) {
+        var roomID = socket.rooms[1];
+        socket.broadcast.to(roomID).emit('stop-typing', username);
+    });
+
     socket.on('del-request', function (request) {
         db.srem("requests", request);
     });
@@ -140,8 +150,10 @@ io.on('connection', function (socket) {
 
     socket.on('new-user', function (sessionID, username) {
         var roomID = socket.rooms[1];
+        socket.broadcast.to(socket.rooms[1]).emit('chat-message', username + " has joined");
         socket.broadcast.to(roomID).emit('add-user', sessionID);
         db.hset("usernames", sessionID, username);
+        db.rpush(roomID + ":usernames", username);
         db.llen(roomID + ":" + sessionID, function (err, reply) {
             if (!reply) {
                 db.rpush(roomID + ":" + sessionID, sessionID);
@@ -152,9 +164,27 @@ io.on('connection', function (socket) {
         });
     });
 
+    socket.on('check-username', function (username) {
+        var response = true;
+        var roomID = socket.rooms[1];
+        db.lrange(roomID + ":usernames", 0, -1, function (err, d) {
+            for (var i = 0; i < d.length; i += 1) {
+                if (d[i] === username) {
+                    response = false;
+                    socket.emit('check-username-response', response);
+                    return;
+                }
+            }
+            socket.emit('check-username-response', response);
+        });
+    });
+
     socket.on('user-leave', function (sessionID, username) {
+        var roomID = socket.rooms[1];
+        db.lrem(roomID + ":usernames", 0, username);
         var data = {};
         io.emit('transmit-userData', sessionID, data);
+        socket.broadcast.to(socket.rooms[1]).emit('chat-message', username + " has left");
     });
 
     socket.on('chat-message', function (msg) {

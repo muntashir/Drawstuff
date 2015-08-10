@@ -14,6 +14,8 @@ var thickness = 2;
 
 //Data
 var userPositionsObject = {};
+var usersTyping = {};
+var typingNodes = [];
 var canvasData = {};
 var dataBuffer = [];
 var bufferLength = 3;
@@ -53,11 +55,6 @@ $(document).ready(function () {
     initControls();
     initCanvas();
     joinRoom(roomID);
-
-    $('#chat-input').on('click keydown', function () {
-        unreadCount = 0;
-        updateWindowTitle();
-    });
 
     $('#clear').on('click touchend', function () {
         bootbox.confirm("Are you sure you want to clear everything?", function (result) {
@@ -108,21 +105,71 @@ function drawLoop() {
     window.requestAnimationFrame(drawLoop);
 }
 
+function displayUsersTyping() {
+    for (var i = 0; i < typingNodes.length; i += 1) {
+        typingNodes[i].remove();
+    }
+
+    typingNodes = [];
+
+    for (var user in usersTyping) {
+        if (usersTyping.hasOwnProperty(user)) {
+            var node = $('<li class="list-group-item">' + user + ' is typing...</li>');
+            typingNodes.push(node);
+            $('#chat-messages').append(node);
+        }
+    }
+}
+
 function initChat() {
     socket.emit('get-username', sessionID);
 
     socket.on('send-username', function (u) {
         if (u) {
             username = u;
-            addUser();
+            socket.emit('check-username', username);
         } else {
             getUserName();
         }
     });
 
+    socket.on('check-username-response', function (response) {
+        if (response) {
+            addUser();
+        } else {
+            bootbox.alert("Username is already taken", function () {
+                getUserName();
+            });
+        }
+    });
+
+    socket.on('start-typing', function (username) {
+        usersTyping[username] = "";
+        displayUsersTyping();
+    });
+
+    socket.on('stop-typing', function (username) {
+        if (usersTyping.hasOwnProperty(username)) {
+            delete usersTyping[username];
+            displayUsersTyping();
+        }
+    });
+
+    $('#chat-input').on('click keydown', function () {
+        unreadCount = 0;
+        updateWindowTitle();
+    });
+
+    $('#chat-input').on('input', function () {
+        if ($('#chat-input').val()) {
+            socket.emit('start-typing', username);
+        } else {
+            socket.emit('stop-typing', username);
+        }
+    });
+
     $(window).on('beforeunload', function () {
         if (username) {
-            socket.emit('chat-message', username + " has left");
             socket.emit('user-leave', sessionID, username);
         }
         socket.close();
@@ -134,6 +181,7 @@ function initChat() {
             printToChat("You: " + $('#chat-input').val(), true);
             $('#chat-input').val('');
         }
+        socket.emit('stop-typing', username);
         return false;
     });
 
@@ -261,15 +309,14 @@ function getUserName() {
             if (result === null || result === "") {
                 getUserName();
             } else {
-                username = result;
-                addUser();
+                username = result.trim();
+                socket.emit('check-username', username);
             }
         }
     });
 }
 
 function addUser() {
-    socket.emit('chat-message', username + " has joined");
     printToChat(username + " has joined", true);
     socket.emit('new-user', sessionID, username);
 }
@@ -277,7 +324,7 @@ function addUser() {
 function scrollChat() {
     $("#chat-window").stop().animate({
         scrollTop: $("#chat-window")[0].scrollHeight
-    }, 1000);
+    }, 300);
 }
 
 function printToChat(text, active) {
@@ -294,5 +341,6 @@ function printToChat(text, active) {
     } else {
         $('#chat-messages').append('<li class="list-group-item">' + text + '</li>');
     }
+    displayUsersTyping();
     scrollChat();
 }
