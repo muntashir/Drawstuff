@@ -195,7 +195,7 @@ io.on('connection', function (socket) {
 
         var roomID = socket.roomId;
         var data = {};
-        io.to('transmit-userData', sessionID, data);
+        io.to(roomID).emit('transmit-userData', sessionID, data);
         db.hget("usernames", sessionID, function (err, username) {
             if (username) {
                 db.lrem(roomID + ":usernames", 0, username);
