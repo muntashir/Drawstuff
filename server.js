@@ -142,6 +142,29 @@ io.on('connection', function (socket) {
         }
     });
 
+    socket.on('undo', function () {
+        var sessionID = socket.sessId;
+        var roomID = socket.rooms[1];
+        socket.broadcast.to(roomID).emit('undo', sessionID);
+
+        db.llen(roomID + ":" + sessionID, function (err, reply) {
+            if (reply && reply > 1) {
+                popRight();
+            }
+        });
+
+        function popRight() {
+            db.rpop(roomID + ":" + sessionID, function (err, reply) {
+                if (reply) {
+                    data = JSON.parse(reply);
+                    if (data.type !== 'path-start') {
+                        popRight();
+                    }
+                }
+            });
+        }
+    });
+
     socket.on('clear', function () {
         var roomID = socket.rooms[1];
         socket.broadcast.to(roomID).emit('clear');

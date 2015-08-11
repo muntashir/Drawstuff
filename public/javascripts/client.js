@@ -50,6 +50,17 @@ function joinRoom(id) {
     });
 }
 
+function undo(id) {
+    if (canvasData.hasOwnProperty(id)) {
+        for (var i = canvasData[id].length - 1; i >= 0; i -= 1) {
+            if (canvasData[id].pop().type === 'path-start') {
+                break;
+            }
+        }
+        canvasDraw(canvas, ctx, canvasData, userPositionsObject, true);
+    }
+}
+
 $(document).ready(function () {
     socket = io();
     initControls();
@@ -63,6 +74,15 @@ $(document).ready(function () {
                 socket.emit('clear');
             }
         });
+    });
+
+    $('#undo').on('click touchend', function () {
+        undo(sessionID);
+        socket.emit('undo');
+    });
+
+    socket.on('undo', function (id) {
+        undo(id);
     });
 
     socket.on('clear', function () {
