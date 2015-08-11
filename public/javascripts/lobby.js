@@ -5,6 +5,7 @@
 
     $(document).ready(function () {
         socket = io();
+        io = null;
 
         $("#random").click(function () {
             socket.emit('request-chat', sessionID);

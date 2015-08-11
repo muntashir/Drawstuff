@@ -64,6 +64,8 @@
 
     $(document).ready(function () {
         socket = io();
+        io = null;
+
         initControls();
         initCanvas();
         joinRoom(roomID);
