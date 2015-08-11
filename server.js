@@ -17,6 +17,7 @@ var port = process.env.PORT || 80;
 var http = require('http');
 var server = http.createServer(app);
 var io = require('socket.io')(server);
+io.origins('http://drawstuff.xyz:* http://www.drawstuff.xyz:* http://draw-stuff.herokuapp.com:*');
 
 function getRoomData(roomID, callback) {
     var data = {};
