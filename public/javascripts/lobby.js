@@ -58,7 +58,6 @@ $(document).ready(function () {
     });
 
     $(window).on('beforeunload', function () {
-        socket.emit('del-request', sessionID);
         socket.close();
     });
 });

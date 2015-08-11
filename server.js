@@ -77,6 +77,8 @@ function matchmake() {
 io.on('connection', function (socket) {
     socket.on('request-chat', function (request) {
         db.sadd("requests", request);
+        socket.pendingRequest = true;
+        socket.sessId = request;
         matchmake();
     });
 
@@ -88,10 +90,6 @@ io.on('connection', function (socket) {
     socket.on('stop-typing', function (username) {
         var roomID = socket.rooms[1];
         socket.broadcast.to(roomID).emit('stop-typing', username);
-    });
-
-    socket.on('del-request', function (request) {
-        db.srem("requests", request);
     });
 
     socket.on('get-username', function () {
@@ -121,6 +119,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('join-room', function (roomID, sessionID) {
+        socket.pendingRequest = false;
         socket.sessId = sessionID;
         socket.roomId = roomID;
         socket.join(roomID);
@@ -188,6 +187,12 @@ io.on('connection', function (socket) {
 
     socket.on('disconnect', function () {
         var sessionID = socket.sessId;
+
+        if (socket.pendingRequest) {
+            db.srem("requests", sessionID);
+            return;
+        }
+
         var roomID = socket.roomId;
         var data = {};
         io.to('transmit-userData', sessionID, data);
