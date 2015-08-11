@@ -1,3 +1,3 @@
 # Drawstuff
 
-https://draw-stuff.herokuapp.com/
+http://www.drawstuff.xyz/
