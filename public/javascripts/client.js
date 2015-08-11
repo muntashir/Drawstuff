@@ -197,6 +197,11 @@
             socket.close();
         });
 
+        $(window).on('resize', function () {
+            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth;
+        });
+
         $('form').submit(function () {
             if ($('#chat-input').val()) {
                 socket.emit('chat-message', username + ": " + $('#chat-input').val());
