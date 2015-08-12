@@ -238,31 +238,25 @@
         canvasOffsetY = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10) + parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10) + document.body.parentNode.offsetTop;
 
         $('#canvas').on('mousedown touchstart', function (e) {
-            e.preventDefault();
-            if (!mouseDown) {
-                mouseDown = true;
-                mousePos = getMousePos(canvas, e.originalEvent, canvasOffsetX, canvasOffsetY);
-                var point = {};
-                point.type = 'path-start';
-                point.time = new Date().getTime();
-                point.x = mousePos.x;
-                point.y = mousePos.y;
-                point.color = canvasColor;
-                point.thickness = Math.min(thickness, 15);
-                dataBuffer.push(point);
-                flushBuffer();
-            }
+            mouseDown = true;
+            mousePos = getMousePos(canvas, e.originalEvent, canvasOffsetX, canvasOffsetY);
+            var point = {};
+            point.type = 'path-start';
+            point.time = new Date().getTime();
+            point.x = mousePos.x;
+            point.y = mousePos.y;
+            point.color = canvasColor;
+            point.thickness = Math.min(thickness, 15);
+            dataBuffer.push(point);
+            flushBuffer();
         });
 
-        $(window).on('mouseup touchend', function (e) {
-            e.preventDefault();
-            if (mouseDown) {
-                mouseDown = false;
-                flushBuffer();
-            }
+        $(window).on('mouseup touchend touchcancel', function (e) {
+            mouseDown = false;
+            flushBuffer();
         });
 
-        $('#canvas').on('mouseleave', function (e) {
+        $(window).on('mouseleave touchend touchcancel', function (e) {
             if (username) {
                 var user = {};
                 userPositionsObject[sessionID] = user;
@@ -271,7 +265,6 @@
         });
 
         $(window).on('mousemove touchmove', function (e) {
-            e.preventDefault();
             if (username) {
                 var userPos = getMousePos(canvas, e.originalEvent, canvasOffsetX, canvasOffsetY);
                 var user = {};
@@ -286,7 +279,6 @@
         });
 
         $(window).on('mousemove touchmove', function (e) {
-            e.preventDefault();
             if (mouseDown) {
                 var point = {};
                 point.type = 'path-point';
