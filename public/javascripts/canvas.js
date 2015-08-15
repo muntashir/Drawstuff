@@ -95,7 +95,7 @@ function canvasDraw(canvas, ctx, canvasData, userPositionsObject, forceUpdate) {
         ctx.drawImage(preCanvas, 0, 0);
     }
 
-    ctx.font = "20px Lato";
+    ctx.font = "20px Roboto";
     ctx.textAlign = 'center';
 
     var userData = getUserData(userPositionsObject);
