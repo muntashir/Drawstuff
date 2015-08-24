@@ -75,6 +75,17 @@ function matchmake() {
 
 //Init socket
 io.on('connection', function (socket) {
+    db.incr('numUsers');
+    db.get('numUsers', function (err, numUsers) {
+        io.emit('num-users', numUsers);
+    });
+
+    socket.on('request-num-users', function (request) {
+        db.get('numUsers', function (err, numUsers) {
+            socket.emit('num-users', numUsers);
+        });
+    });
+
     socket.on('request-chat', function (request) {
         db.sadd("requests", request);
         socket.pendingRequest = true;
@@ -209,6 +220,11 @@ io.on('connection', function (socket) {
     });
 
     socket.on('disconnect', function () {
+        db.decr('numUsers');
+        db.get('numUsers', function (err, numUsers) {
+            io.emit('num-users', numUsers);
+        });
+        
         var sessionID = socket.sessId;
 
         if (socket.pendingRequest) {

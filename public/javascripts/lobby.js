@@ -7,6 +7,13 @@
         socket = io();
         io = null;
 
+        socket.emit('request-num-users');
+
+        socket.on('num-users', function (numUsers) {
+            $('#users').empty();
+            $('#users').append(numUsers + " people online");
+        });
+
         $("#random").click(function () {
             socket.emit('request-chat', sessionID);
             $('#random').prop('disabled', true);
