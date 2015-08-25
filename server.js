@@ -51,7 +51,7 @@ function getRoomData(roomID, callback) {
 }
 
 db.on('connect', function () {
-    console.log('Connected to Redis');
+    db.set('numUsers', 0);
 });
 
 function matchmake() {
@@ -224,7 +224,7 @@ io.on('connection', function (socket) {
         db.get('numUsers', function (err, numUsers) {
             io.emit('num-users', numUsers);
         });
-        
+
         var sessionID = socket.sessId;
 
         if (socket.pendingRequest) {
