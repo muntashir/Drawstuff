@@ -11,7 +11,11 @@
 
         socket.on('num-users', function (numUsers) {
             $('#users').empty();
-            $('#users').append(numUsers + " people online");
+            if (numUsers === "1") {
+                $('#users').append(numUsers + " person online");
+            } else {
+                $('#users').append(numUsers + " people online");
+            }
         });
 
         $("#random").click(function () {
