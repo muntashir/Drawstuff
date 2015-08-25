@@ -51,7 +51,8 @@ function getRoomData(roomID, callback) {
 }
 
 db.on('connect', function () {
-    db.set('numUsers', 0);
+    db.del('numUsers');
+    db.del('usernames');
 });
 
 function matchmake() {
