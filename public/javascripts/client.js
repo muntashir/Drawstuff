@@ -44,7 +44,7 @@
                 //Start drawLoop
                 window.requestAnimationFrame(drawLoop);
             } else {
-                bootbox.alert("Room does not exist", function () {
+                bootbox.alert("This channel does not exist", function () {
                     window.location = "/";
                 });
             }

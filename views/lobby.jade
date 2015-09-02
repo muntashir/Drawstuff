@@ -18,12 +18,14 @@ block content
         .well(id='chat-window')
             form.form-group(action='' id='create-room-form')
                 .input-group
-                    input.form-control(type='text' id='create-room-text' placeholder='Room ID')
+                    span.input-group-addon #
+                    input.form-control(type='text' id='create-room-text' placeholder='Channel')
                     span.input-group-btn
-                        button.btn.btn-success.button Create room
+                        button.btn.btn-success.button Create channel
             form.form-group(action='' id='join-room-form')
                 .input-group
-                    input.form-control(type='text' id='join-room-text' placeholder='Room ID')
+                    span.input-group-addon #
+                    input.form-control(type='text' id='join-room-text' placeholder='Channel')
                     span.input-group-btn
-                        button.btn.btn-success.button Join room
+                        button.btn.btn-success.button Join channel
             button.btn.btn-success.full-width(id="random") Random match

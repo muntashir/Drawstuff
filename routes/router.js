@@ -10,7 +10,7 @@ router.get('/', function (req, res, next) {
     });
 });
 
-router.get('/rooms/:id', function (req, res) {
+router.get('/channels/:id', function (req, res) {
     res.render('room', {
         title: 'Drawstuff',
         description: 'Realtime collaboration tool',

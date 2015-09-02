@@ -27,7 +27,7 @@
         socket.on('request-chat-response', function (response) {
             console.log(response);
             if (response[0] === sessionID || response[1] === sessionID) {
-                window.location = "/rooms/" + response[0];
+                window.location = "/channels/" + response[0];
             }
         });
 
@@ -37,7 +37,7 @@
                 roomID = $('#create-room-text').val();
                 socket.emit('check-room', roomID);
             } else {
-                bootbox.alert("Room ID must be alphanumeric");
+                bootbox.alert("The channel name can only have numbers and letters");
             }
             return false;
         });
@@ -48,7 +48,7 @@
                 roomID = $('#join-room-text').val();
                 socket.emit('check-room', roomID);
             } else {
-                bootbox.alert("Room ID must be alphanumeric");
+                bootbox.alert("The channel name can only have numbers and letters");
             }
             return false;
         });
@@ -56,17 +56,17 @@
         socket.on('check-room-response', function (response) {
             if (action === 'create') {
                 if (response) {
-                    bootbox.alert("Room already exists", function () {});
+                    bootbox.alert("This channel already exists", function () {});
                 } else {
                     socket.emit('create-room', roomID);
-                    window.location = "/rooms/" + roomID;
+                    window.location = "/channels/" + roomID;
                 }
             }
             if (action === 'join') {
                 if (response) {
-                    window.location = "/rooms/" + roomID;
+                    window.location = "/channels/" + roomID;
                 } else {
-                    bootbox.alert("Room does not exist", function () {});
+                    bootbox.alert("This channel does not exist", function () {});
                 }
             }
         });
