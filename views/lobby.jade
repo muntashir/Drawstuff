@@ -16,16 +16,10 @@ block content
                 p#users.navbar-text
     #window
         .well(id='chat-window')
-            form.form-group(action='' id='create-room-form')
+            form.form-group(action='' id='enter-room-form')
                 .input-group
                     span.input-group-addon #
-                    input.form-control(type='text' id='create-room-text' placeholder='Channel')
+                    input.form-control(type='text' id='enter-room-text' placeholder='Channel')
                     span.input-group-btn
-                        button.btn.btn-success.button Create channel
-            form.form-group(action='' id='join-room-form')
-                .input-group
-                    span.input-group-addon #
-                    input.form-control(type='text' id='join-room-text' placeholder='Channel')
-                    span.input-group-btn
-                        button.btn.btn-success.button Join channel
+                        button.btn.btn-success.button Enter channel
             button.btn.btn-success.full-width(id="random") Random match
