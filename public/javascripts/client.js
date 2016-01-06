@@ -113,6 +113,7 @@
     });
 
     function clearCanvas() {
+        mouseDown = false;
         canvasDraw(canvas, ctx, canvasData, userPositionsObject, true);
         for (var key in canvasData) {
             if (canvasData.hasOwnProperty(key)) {
